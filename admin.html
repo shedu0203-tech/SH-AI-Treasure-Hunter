@@ -1,0 +1,26 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SH AI 트레저헌터 관리자</title><style>body{font-family:system-ui,sans-serif;background:#081b31;color:#edf7ff;margin:0;padding:18px}main{max-width:1000px;margin:auto}header{padding:20px 0}h1{margin:4px 0}section,.tile{background:#163552;border:1px solid #315673;border-radius:16px;padding:17px;margin:12px 0}button,input,select{font:inherit;padding:12px;border-radius:10px;border:1px solid #6183a0;background:#244a6b;color:#fff;box-sizing:border-box}button{background:#63d4ca;color:#08263d;font-weight:700;cursor:pointer}button:disabled{opacity:.5}.danger{background:#ffb3b3}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.muted{color:#b9d0e4}small{color:#b9d0e4}.progress{background:#315673;border-radius:10px;overflow:hidden;height:12px}.bar{height:100%;background:#63d4ca}table{border-collapse:collapse;width:100%}td,th{padding:9px;border-bottom:1px solid #45627c;text-align:center}.scroll{overflow:auto}#msg{color:#8fe8d5;white-space:pre-wrap}label{display:block;margin:8px 0}</style></head><body><main><header><small>SH EDU COMPANY</small><h1>🗝️ SH AI 트레저헌터 관리자</h1><p class="muted">40팀 실시간 관리 · 지도자 승인 · 초기화</p></header>
+<section><label>관리자 PIN <input id="pin" type="password" placeholder="Render ADMIN_PIN"></label><button onclick="load()">관리자 접속 / 새로고침</button><p id="msg"></p></section>
+<div id="dashboard" hidden>
+<section><h2>행사 운영</h2><label><input id="open" type="checkbox"> 학생 미션 진행 허용</label><div id="places"></div><button onclick="saveSettings()">장소 및 운영 상태 저장</button></section>
+<section><h2>지도자 승인 대기</h2><div id="pending"></div></section>
+<section><h2>40팀 진행 현황</h2><p id="summary"></p><button onclick="csv()">결과 CSV 저장</button><div class="scroll"><table><thead><tr><th>팀</th><th>이름</th><th>완료</th><th>점수</th><th>관리</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+<section><h2>전체 초기화</h2><p class="muted">40개 팀의 등록·미션·점수·승인 기록을 모두 삭제합니다. 장소 설정은 유지됩니다.</p><input id="confirmation" placeholder="전체 초기화"><button class="danger" onclick="resetAll()">40팀 전체 초기화</button></section>
+</div></main><script>
+let data=null;
+const el=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+async function api(route,body){const r=await fetch('/api/admin/'+route,{method:body?'POST':'GET',headers:{'Content-Type':'application/json','x-admin-pin':el('pin').value},body:body?JSON.stringify(body):undefined});const j=await r.json();if(!r.ok)throw Error(j.error);return j}
+async function load(){try{data=await api('state');el('dashboard').hidden=false;render();el('msg').textContent='최근 갱신 '+new Date().toLocaleTimeString()}catch(e){el('msg').textContent=e.message}}
+function render(){el('open').checked=data.open;el('places').innerHTML=data.missions.map((m,i)=>`<label>미션 ${i+1} · ${esc(m.title)} <input id="place${i}" value="${esc(data.places[i])}" style="width:100%"></label>`).join('');
+const pending=data.teams.flatMap(t=>t.pending.map(m=>({team:t.id,mission:m})));
+el('pending').innerHTML=pending.length?pending.map(x=>`<p>${x.team}팀 · 미션 ${x.mission} <button onclick="approve(${x.team},${x.mission})">승인</button></p>`).join(''):'현재 승인 대기 없음';
+el('summary').textContent='등록 '+data.teams.filter(t=>t.name).length+'팀 / 전체 완료 '+data.teams.filter(t=>t.done.every(Boolean)).length+'팀';
+el('rows').innerHTML=data.teams.map(t=>`<tr><td>${t.id}</td><td>${esc(t.name||'미등록')}</td><td>${t.done.filter(Boolean).length}/8</td><td>${t.score}</td><td><button class="danger" onclick="resetTeam(${t.id})">초기화</button></td></tr>`).join('')}
+async function act(route,body){try{await api(route,body);await load()}catch(e){el('msg').textContent=e.message}}
+function approve(team,mission){if(confirm(team+'팀 미션 '+mission+' 완료를 승인할까요?'))act('approve',{team,mission})}
+function resetTeam(team){if(confirm(team+'팀 기록을 삭제하고 재등록 가능하게 할까요?'))act('reset-team',{team})}
+function resetAll(){if(el('confirmation').value!=='전체 초기화')return alert('전체 초기화를 입력하세요');if(confirm('모든 40개 팀의 기록을 삭제할까요?')){el('confirmation').value='';act('reset-all',{confirm:'전체 초기화'})}}
+function saveSettings(){act('settings',{open:el('open').checked,places:data.places.map((_,i)=>el('place'+i).value)})}
+function csv(){if(!data)return;const rows=[['팀','이름','완료','점수'],...data.teams.map(t=>[t.id,t.name,t.done.filter(Boolean).length,t.score])];const s='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\r\n');const u=URL.createObjectURL(new Blob([s],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download='SH_AI_트레저헌터_결과.csv';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+setInterval(()=>{if(!el('dashboard').hidden)load()},10000);
+</script></body></html>

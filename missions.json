@@ -1,0 +1,58 @@
+[
+  {
+    "title": "시크릿 QR 헌터",
+    "place": "정문 안내 구역",
+    "description": "QR에 적힌 세 자리 암호를 입력하세요.",
+    "answer": "314",
+    "type": "auto"
+  },
+  {
+    "title": "AI 코드 브레이커",
+    "place": "교육실",
+    "description": "암호 '19-8'을 알파벳으로 바꾸세요. (A=1)",
+    "answer": "SH",
+    "type": "auto"
+  },
+  {
+    "title": "트레저 빌더",
+    "place": "실내 활동실",
+    "description": "팀원 모두 참여하여 카프라 구조물을 완성하고 지도자 승인을 받으세요.",
+    "answer": "",
+    "type": "approve"
+  },
+  {
+    "title": "디지털 관찰 탐정",
+    "place": "공용 공간",
+    "description": "현장 안내판의 지정된 단어를 확인하고 입력하세요.",
+    "answer": "탐험",
+    "type": "auto"
+  },
+  {
+    "title": "협동 파이프라인",
+    "place": "운동장",
+    "description": "파이프라인으로 공을 목표 지점까지 이동하고 지도자 승인을 받으세요.",
+    "answer": "",
+    "type": "approve"
+  },
+  {
+    "title": "퍼즐 트레저",
+    "place": "테이블 활동 구역",
+    "description": "퍼즐을 완성한 뒤 발견한 암호를 입력하세요.",
+    "answer": "728",
+    "type": "auto"
+  },
+  {
+    "title": "네트워크 챌린지",
+    "place": "체육관",
+    "description": "팀원 전체가 협동 미션을 수행하고 지도자 승인을 받으세요.",
+    "answer": "",
+    "type": "approve"
+  },
+  {
+    "title": "파이널 트레저",
+    "place": "최종 집결지",
+    "description": "일곱 조각을 모았다면 최종 보물 암호를 입력하세요.",
+    "answer": "TREASURE",
+    "type": "auto"
+  }
+]
