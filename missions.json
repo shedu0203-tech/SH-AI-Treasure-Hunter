@@ -7,7 +7,7 @@
   {"id":6,"category":"관찰","title":"보물 표식","place":"관리자 지정 장소 6","description":"안전한 탐색 구역에서 보물 표식을 찾아보세요.","type":"approve","points":100},
   {"id":7,"category":"퀴즈","title":"상식 퀴즈","place":"관리자 지정 장소 7","description":"현장 지도자가 제시하는 상식 문제를 풀어보세요.","type":"approve","points":100},
   {"id":8,"category":"퀴즈","title":"안전 퀴즈","place":"관리자 지정 장소 8","description":"수련활동 안전 수칙에 관한 문제에 답하세요.","type":"approve","points":100},
-  {"id":9,"category":"퀴즈","title":"AI 도전 퀴즈","place":"관리자 지정 장소 9","description":"활동 장소와 ,"type":"approve","points":100},
+  {"id":9,"category":"퀴즈","title":"AI 도전 퀴즈","place":"관리자 지정 장소 9","description":"활동 장소와" ,"type":"approve","points":100},
   {"id":10,"category":"추리","title":"암호 해독","place":"관리자 지정 장소 10","description":"주어진 단서를 조합해 암호의 의미를 추리하세요.","type":"approve","points":100},
   {"id":11,"category":"추리","title":"단서 연결","place":"관리자 지정 장소 11","description":"여러 단서의 관계를 찾아 결론을 설명하세요.","type":"approve","points":100},
   {"id":12,"category":"추리","title":"보물 위치 추리","place":"관리자 지정 장소 12","description":"단서로 다음 보물의 위치를 추리하세요.","type":"approve","points":100},
