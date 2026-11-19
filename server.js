@@ -28,6 +28,10 @@ if (!Array.isArray(db.places) || db.places.length !== COUNT) {
   db.places = missions.map((m, i) => db.places?.[i] || m.place);
 }
 
+if (!Array.isArray(db.gps) || db.gps.length !== COUNT) {
+  db.gps = Array.from({length: COUNT}, () => null);
+}
+
 for (const t of Object.values(db.teams)) {
   t.done = Array.from({length: COUNT}, (_, i) => Boolean(t.done?.[i]));
   t.pending = (t.pending || []).filter(i => Number.isInteger(i) && i >= 1 && i <= COUNT && !t.done[i - 1]);
