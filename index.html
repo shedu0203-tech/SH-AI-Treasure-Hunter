@@ -240,6 +240,33 @@ async function refresh(){
 
 init();
 setInterval(refresh,5000);
+ 
+async function checkGPS() {
+  if (!navigator.geolocation) {
+    alert('이 기기는 GPS를 지원하지 않습니다.');
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
+
+      alert('GPS 위치 확인 성공!\n위치 정확도: 약 ' +
+        Math.round(accuracy) + 'm');
+    },
+    () => alert('위치 권한을 허용해주세요.'),
+    { enableHighAccuracy: true, timeout: 15000 }
+  );
+}
+
+const gpsButton = document.createElement('button');
+gpsButton.textContent = '📍 GPS 위치 확인 테스트';
+gpsButton.onclick = checkGPS;
+gpsButton.style.cssText = 'display:block;margin:15px auto;padding:15px;background:#1976d2;color:white;border:0;border-radius:10px;';
+document.body.appendChild(gpsButton);
+
 </script>
 </body>
 </html>
