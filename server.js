@@ -257,7 +257,7 @@ http.createServer(async (req, res) => {
 
     const name = u.pathname === '/' ? 'index.html' : u.pathname.slice(1);
 
-    if (!['index.html', '관리자.html', 'manifest.json'].includes(name)) {
+    if (!['index.html', 'admin.html', 'manifest.json'].includes(name)) {
       return send(res, 404, {error: '없음'});
     }
 
