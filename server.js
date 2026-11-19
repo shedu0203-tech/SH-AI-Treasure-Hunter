@@ -14,7 +14,10 @@ const MAX_TEAMS = 40;
 let db = {
   teams: {},
   places: missions.map(m => m.place),
-  open: true
+
+open: true,
+gps: Array.from({length: 15}, () => null)
+
 };
 
 try {
