@@ -1,13 +1,245 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SH AI 트레저헌터</title><style>body{font-family:system-ui,sans-serif;background:#081b31;color:#edf7ff;margin:0;padding:18px}main{max-width:1000px;margin:auto}header{padding:20px 0}h1{margin:4px 0}section,.tile{background:#163552;border:1px solid #315673;border-radius:16px;padding:17px;margin:12px 0}button,input,select{font:inherit;padding:12px;border-radius:10px;border:1px solid #6183a0;background:#244a6b;color:#fff;box-sizing:border-box}button{background:#63d4ca;color:#08263d;font-weight:700;cursor:pointer}button:disabled{opacity:.5}.danger{background:#ffb3b3}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.muted{color:#b9d0e4}small{color:#b9d0e4}.progress{background:#315673;border-radius:10px;overflow:hidden;height:12px}.bar{height:100%;background:#63d4ca}table{border-collapse:collapse;width:100%}td,th{padding:9px;border-bottom:1px solid #45627c;text-align:center}.scroll{overflow:auto}#msg{color:#8fe8d5;white-space:pre-wrap}label{display:block;margin:8px 0}</style></head><body><main><header><small>SH EDU COMPANY</small><h1>🧭 SH AI 트레저헌터</h1><p class="muted">수련원 전체가 하나의 보물지도가 된다!</p></header><div id="app">불러오는 중...</div><p id="msg"></p></main><script>
-let cfg=null,session=JSON.parse(localStorage.getItem('sh_treasure_team')||'null'),state=null;
-const el=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-async function request(url,body){const r=await fetch(url,{method:body?'POST':'GET',headers:{'Content-Type':'application/json','x-team-token':session?.token||''},body:body?JSON.stringify(body):undefined});const j=await r.json();if(!r.ok)throw Error(j.error);return j}
-async function init(){try{cfg=await request('/api/config');if(session){try{state=(await request('/api/me')).team}catch{session=null;localStorage.removeItem('sh_treasure_team')}}render()}catch(e){el('msg').textContent=e.message}}
-function render(){if(!state){el('app').innerHTML=`<section><h2>팀 등록</h2><label>우리 팀 <select id="team">${Array.from({length:40},(_,i)=>`<option value="${i+1}">${i+1}팀</option>`).join('')}</select></label><label>팀 이름 <input id="name" placeholder="예: 보물 탐험대"></label><button onclick="join()">탐험 시작</button></section>`;return}
-const count=state.done.filter(Boolean).length;
-el('app').innerHTML=`<section><h2>${esc(state.id)}팀 · ${esc(state.name)}</h2><p>완료 ${count}/8 · 점수 ${state.score}점</p><div class="progress"><div class="bar" style="width:${count/8*100}%"></div></div></section><div class="grid">${cfg.missions.map(m=>{const i=m.id-1,done=state.done[i],pending=state.pending.includes(m.id),locked=m.id===8&&!state.done.slice(0,7).every(Boolean);return `<div class="tile"><small>미션 ${m.id} · ${esc(m.place)}</small><h3>${esc(m.title)}</h3><p class="muted">${esc(m.description)}</p>${done?'✅ 완료':pending?'⏳ 지도자 승인 대기':locked?'🔒 앞의 7개 미션 완료 후 열림':!cfg.open?'⛔ 운영 종료':m.type==='approve'?`<button onclick="submit(${m.id})">지도자 승인 요청</button>`:`<input id="answer${m.id}" placeholder="현장 암호 입력" style="width:100%;margin-bottom:8px"><button onclick="submit(${m.id})">정답 제출</button>`}</div>`}).join('')}</div><section><button onclick="refresh()">진행 상황 새로고침</button></section>`}
-async function join(){try{const j=await request('/api/join',{team:Number(el('team').value),name:el('name').value});session={token:j.token};localStorage.setItem('sh_treasure_team',JSON.stringify(session));state=j.team;render()}catch(e){el('msg').textContent=e.message}}
-async function submit(i){try{const answer=el('answer'+i)?.value||'';state=(await request('/api/submit',{mission:i,answer})).team;el('msg').textContent='제출되었습니다.';render()}catch(e){el('msg').textContent=e.message}}
-async function refresh(){try{state=(await request('/api/me')).team;cfg=await request('/api/config');render()}catch(e){el('msg').textContent=e.message}}
-init();setInterval(()=>{if(session)refresh()},12000);
-</script></body></html>
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#123c69">
+<title>SH AI 트레저헌터</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f2f6fb;color:#18283b;font-family:Arial,"Malgun Gothic",sans-serif}
+header{background:#123c69;color:white;padding:23px 16px;text-align:center}
+header h1{font-size:25px;margin:5px}
+header p{font-size:13px;margin:8px}
+main{max-width:650px;margin:auto;padding:15px}
+.card{background:white;border-radius:17px;padding:19px;margin-bottom:15px;box-shadow:0 3px 12px #123c6914}
+h2{font-size:20px;margin:0 0 14px}
+h3{font-size:18px}
+input,button{font:inherit}
+input{width:100%;padding:14px;margin:8px 0;border:1px solid #ccd5e0;border-radius:10px}
+button{border:0;border-radius:10px;padding:13px 17px;background:#1769aa;color:white;font-weight:bold;cursor:pointer}
+button:disabled{background:#a5afba}
+.full{width:100%;margin-top:10px}
+.mission{border:1px solid #e1e6ee;border-radius:14px;padding:15px;margin:12px 0;background:white}
+.mission.done{background:#edf9ef;border-color:#82c994}
+.mission.pending{background:#fff8e8;border-color:#e8c76c}
+.tag{display:inline-block;padding:5px 10px;border-radius:20px;background:#e5effb;font-size:12px;margin-bottom:8px}
+.small{font-size:13px;color:#596b7e}
+.progress{height:15px;background:#e4eaf0;border-radius:20px;overflow:hidden}
+.bar{height:100%;background:#26a878;transition:width .3s}
+.pieces{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:15px 0}
+.piece{background:#e1e7ed;border-radius:9px;text-align:center;padding:14px 0;font-weight:bold;color:#738293}
+.piece.on{background:#ffd66d;color:#614300}
+.hidden{display:none}
+.error{color:#c0392b}
+.success{color:#167e49}
+footer{text-align:center;color:#768393;font-size:12px;padding:20px}
+</style>
+</head>
+<body>
+<header>
+<h1>🗺️ SH AI 트레저헌터</h1>
+<p>15개의 미션을 완수하고 보물 상자를 열어라!</p>
+</header>
+
+<main>
+<div id="notice" class="card hidden"></div>
+
+<section id="login" class="card">
+<h2>🚩 탐험 시작</h2>
+<p>팀 번호와 팀 이름을 입력하세요.</p>
+<input id="teamNumber" type="number" min="1" max="40" placeholder="팀 번호 (1~40)">
+<input id="teamName" maxlength="25" placeholder="팀 이름">
+<button class="full" onclick="join()">탐험 시작하기</button>
+<p class="small">팀당 휴대폰 한 대를 사용합니다.</p>
+</section>
+
+<section id="game" class="hidden">
+<div class="card">
+<h2 id="teamTitle">우리 팀</h2>
+<p id="score">0점</p>
+<div class="progress"><div id="bar" class="bar"></div></div>
+<p id="progressText" class="small"></p>
+<h3>🧩 보물 조각</h3>
+<div id="pieces" class="pieces"></div>
+</div>
+
+<div id="treasure" class="card hidden">
+<h2>🎉 보물 상자 개방!</h2>
+<p>15개 미션을 모두 완료했습니다.</p>
+<p>관리자에게 최종 보물 확인을 요청하세요.</p>
+</div>
+
+<div class="card">
+<h2>🧭 자유 탐색 미션</h2>
+<p class="small">원하는 장소부터 방문해 미션을 수행하세요. 현장 지도자의 안내를 따라 안전하게 이동하세요.</p>
+<div id="missions"></div>
+</div>
+</section>
+</main>
+
+<footer>SH에듀컴퍼니 · SH AI TREASURE HUNTER</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const TOTAL=15;
+let config=null;
+let state=null;
+let session=localStorage.getItem('sh_treasure_token')||'';
+let busy=false;
+
+function esc(v){
+ return String(v??'').replace(/[&<>"']/g,c=>({
+ '&':'&amp;','<':'&lt;','>':'&gt;',
+ '"':'&quot;',"'":'&#39;'
+ })[c]);
+}
+
+function notify(message,error=false){
+ const n=$('notice');
+ n.textContent=message;
+ n.classList.remove('hidden');
+ n.classList.toggle('error',error);
+ n.classList.toggle('success',!error);
+}
+
+async function api(url,body,admin=false){
+ const headers={'Content-Type':'application/json'};
+ if(session)headers['x-team-token']=session;
+ const options={method:body===undefined?'GET':'POST',headers};
+ if(body!==undefined)options.body=JSON.stringify(body);
+ const r=await fetch(url,options);
+ const data=await r.json();
+ if(!r.ok)throw Error(data.error||'요청 실패');
+ return data;
+}
+
+async function init(){
+ try{
+  config=await api('/api/config');
+  if(!session)return;
+  const result=await api('/api/me');
+  state=result.team;
+  if(typeof result.open==='boolean')config.open=result.open;
+  render();
+ }catch(e){
+  if(session){
+   session='';
+   localStorage.removeItem('sh_treasure_token');
+  }
+  notify(e.message,true);
+ }
+}
+
+async function join(){
+ if(busy)return;
+ const number=Number($('teamNumber').value);
+ const name=$('teamName').value.trim();
+ if(!Number.isInteger(number)||number<1||number>40){
+  notify('1~40 사이의 팀 번호를 입력하세요.',true);
+  return;
+ }
+ if(!name){
+  notify('팀 이름을 입력하세요.',true);
+  return;
+ }
+ busy=true;
+ try{
+  const result=await api('/api/join',{team:number,name});
+  session=result.token;
+  localStorage.setItem('sh_treasure_token',session);
+  state=result.team;
+  render();
+  $('notice').classList.add('hidden');
+ }catch(e){notify(e.message,true)}
+ finally{busy=false}
+}
+
+function render(){
+ if(!state||!config)return;
+ $('login').classList.add('hidden');
+ $('game').classList.remove('hidden');
+
+ const done=Array.from({length:TOTAL},(_,i)=>Boolean(state.done?.[i]));
+ const pending=Array.isArray(state.pending)?state.pending:[];
+ const count=done.filter(Boolean).length;
+ const missions=Array.isArray(config.missions)?config.missions:[];
+
+ $('teamTitle').textContent='🏴 '+state.name;
+ $('score').textContent=(count*100)+'점';
+ $('progressText').textContent=count+' / '+TOTAL+'개 미션 완료';
+ $('bar').style.width=(count/TOTAL*100)+'%';
+
+ $('pieces').innerHTML=done.map((v,i)=>
+  '<div class="piece '+(v?'on':'')+'">'+
+  (v?'💎':i+1)+'</div>'
+ ).join('');
+
+ $('treasure').classList.toggle('hidden',count!==TOTAL);
+
+ $('missions').innerHTML=missions.map((m,i)=>{
+  const id=Number(m.id)||i+1;
+  const completed=done[id-1];
+  const waiting=pending.includes(id);
+  const status=completed?'완료':waiting?'승인 대기':'도전 가능';
+  const type=esc(m.category||m.type||'미션');
+  const place=esc(m.place||'관리자 지정 장소');
+  const description=esc(m.description||'현장 안내에 따라 수행하세요.');
+
+  return '<div class="mission '+(completed?'done':waiting?'pending':'')+'">'+
+   '<span class="tag">'+type+'</span>'+
+   '<h3>'+id+'. '+esc(m.title)+'</h3>'+
+   '<p>📍 '+place+'</p>'+
+   '<p>'+description+'</p>'+
+   '<p class="small">상태: '+status+'</p>'+
+   (completed?'<strong>✅ 미션 성공 · 보물 조각 획득</strong>':
+    waiting?'<strong>⏳ 관리자 승인을 기다리는 중</strong>':
+    '<button class="full" '+(!config.open?'disabled':'')+
+    ' onclick="submitMission('+id+')">미션 수행 완료 요청</button>')+
+   '</div>';
+ }).join('');
+
+ if(!config.open)notify('현재 행사가 종료되었거나 일시 중지되었습니다.',true);
+}
+
+async function submitMission(id){
+ if(busy)return;
+ if(!confirm(id+'번 미션을 수행했나요? 관리자에게 승인을 요청합니다.'))return;
+ busy=true;
+ try{
+  const result=await api('/api/submit',{mission:id});
+  state=result.team;
+  render();
+  notify('미션 요청이 접수되었습니다. 관리자 승인을 기다리세요.');
+ }catch(e){notify(e.message,true)}
+ finally{busy=false}
+}
+
+async function refresh(){
+ if(!session)return;
+ try{
+  const result=await api('/api/me');
+  const oldCount=state?.done?.filter(Boolean).length||0;
+  state=result.team;
+  if(typeof result.open==='boolean')config.open=result.open;
+  render();
+  const newCount=state.done.filter(Boolean).length;
+  if(newCount>oldCount)notify('🎉 미션 승인! 보물 조각을 획득했습니다.');
+ }catch(e){
+  if(e.message.includes('인증')||e.message.includes('만료')){
+   session='';
+   localStorage.removeItem('sh_treasure_token');
+   state=null;
+   $('game').classList.add('hidden');
+   $('login').classList.remove('hidden');
+  }
+  notify(e.message,true);
+ }
+}
+
+init();
+setInterval(refresh,5000);
+</script>
+</body>
+</html>
