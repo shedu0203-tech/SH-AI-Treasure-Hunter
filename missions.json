@@ -1,58 +1,19 @@
 [
-  {
-    "title": "시크릿 QR 헌터",
-    "place": "정문 안내 구역",
-    "description": "QR에 적힌 세 자리 암호를 입력하세요.",
-    "answer": "314",
-    "type": "auto"
-  },
-  {
-    "title": "AI 코드 브레이커",
-    "place": "교육실",
-    "description": "암호 '19-8'을 알파벳으로 바꾸세요. (A=1)",
-    "answer": "SH",
-    "type": "auto"
-  },
-  {
-    "title": "트레저 빌더",
-    "place": "실내 활동실",
-    "description": "팀원 모두 참여하여 카프라 구조물을 완성하고 지도자 승인을 받으세요.",
-    "answer": "",
-    "type": "approve"
-  },
-  {
-    "title": "디지털 관찰 탐정",
-    "place": "공용 공간",
-    "description": "현장 안내판의 지정된 단어를 확인하고 입력하세요.",
-    "answer": "탐험",
-    "type": "auto"
-  },
-  {
-    "title": "협동 파이프라인",
-    "place": "운동장",
-    "description": "파이프라인으로 공을 목표 지점까지 이동하고 지도자 승인을 받으세요.",
-    "answer": "",
-    "type": "approve"
-  },
-  {
-    "title": "퍼즐 트레저",
-    "place": "테이블 활동 구역",
-    "description": "퍼즐을 완성한 뒤 발견한 암호를 입력하세요.",
-    "answer": "728",
-    "type": "auto"
-  },
-  {
-    "title": "네트워크 챌린지",
-    "place": "체육관",
-    "description": "팀원 전체가 협동 미션을 수행하고 지도자 승인을 받으세요.",
-    "answer": "",
-    "type": "approve"
-  },
-  {
-    "title": "파이널 트레저",
-    "place": "최종 집결지",
-    "description": "일곱 조각을 모았다면 최종 보물 암호를 입력하세요.",
-    "answer": "TREASURE",
-    "type": "auto"
-  }
+  {"id":1,"category":"협동","title":"팀워크 암호","place":"관리자 지정 장소 1","description":"팀원들이 함께 주변 단서를 관찰하고 암호를 찾아보세요.","type":"approve","points":100},
+  {"id":2,"category":"협동","title":"협동 작전","place":"관리자 지정 장소 2","description":"팀원 모두가 역할을 나눠 협동 과제를 완수하세요.","type":"approve","points":100},
+  {"id":3,"category":"협동","title":"공동 목표","place":"관리자 지정 장소 3","description":"팀원들의 의견을 모아 공동 해결책을 제출하세요.","type":"approve","points":100},
+  {"id":4,"category":"관찰","title":"숨은 단서","place":"관리자 지정 장소 4","description":"주변에서 지도자가 지정한 특징을 찾아 기록하세요.","type":"approve","points":100},
+  {"id":5,"category":"관찰","title":"주변 
+탐색","place":"관리자 지정 장소 5","description":"주변 환경을 살펴보고 관찰 결과를 설명하세요.","type":"approve","points":100},
+  {"id":6,"category":"관찰","title":"보물 표식","place":"관리자 지정 장소 6","description":"안전한 탐색 구역에서 보물 표식을 찾아보세요.","type":"approve","points":100},
+  {"id":7,"category":"퀴즈","title":"상식 퀴즈","place":"관리자 지정 장소 7","description":"현장 지도자가 제시하는 상식 문제를 풀어보세요.","type":"approve","points":100},
+  {"id":8,"category":"퀴즈","title":"안전 퀴즈","place":"관리자 지정 장소 8","description":"수련활동 안전 수칙에 관한 문제에 답하세요.","type":"approve","points":100},
+  {"id":9,"category":"퀴즈","title":"AI 도전 퀴즈","place":"관리자 지정 장소 9","description":"활동 장소와 
+학생 수준에 맞는 퀴즈에 도전하세요.","type":"approve","points":100},
+  {"id":10,"category":"추리","title":"암호 해독","place":"관리자 지정 장소 10","description":"주어진 단서를 조합해 암호의 의미를 추리하세요.","type":"approve","points":100},
+  {"id":11,"category":"추리","title":"단서 연결","place":"관리자 지정 장소 11","description":"여러 단서의 관계를 찾아 결론을 설명하세요.","type":"approve","points":100},
+  {"id":12,"category":"추리","title":"보물 위치 추리","place":"관리자 지정 장소 12","description":"단서로 다음 보물의 위치를 추리하세요.","type":"approve","points":100},
+  {"id":13,"category":"도전","title":"탐험 챌린지","place":"관리자 지정 장소 13","description":"안전한 지정 구역에서 탐험 과제를 완수하세요.","type":"approve","points":100},
+  {"id":14,"category":"도전","title":"팀 동작 미션","place":"관리자 지정 장소 14","description":"모든 팀원이 함께 안전한 동작 과제를 수행하세요.","type":"approve","points":100},
+  {"id":15,"category":"도전","title":"최종 보물 도전","place":"관리자 지정 장소 15","description":"앞선 미션의 단서를 종합해 최종 보물을 찾아보세요.","type":"approve","points":100}
 ]
