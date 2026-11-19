@@ -251,6 +251,20 @@ http.createServer(async (req, res) => {
           db.places = b.places.map(x => String(x).slice(0, 100));
         }
         if (typeof b.open === 'boolean') db.open = b.open;
+        
+if (Array.isArray(b.gps) && b.gps.length === COUNT) {
+  db.gps = b.gps.map(p => {
+    if (p === null) return null;
+    const lat = Number(p.lat);
+    const lng = Number(p.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) ||
+        lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      return null;
+    }
+    return {lat, lng};
+  });
+}
+
         save();
         return send(res, 200, {ok: true});
       }
