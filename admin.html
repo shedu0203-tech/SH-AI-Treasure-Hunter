@@ -370,9 +370,13 @@ if(pin){
  $('pin').value=pin;
  load().catch(()=>{});
 }
-setInterval(()=>{
- if(pin&&data)load().catch(()=>{});
-},10000);
+
+setInterval(() => {
+  if (pin && data && !document.activeElement?.closest('#gpsFields')) {
+    load().catch(() => {});
+  }
+}, 10000);
+  
 </script>
 </body>
 </html>
