@@ -492,5 +492,26 @@ document.addEventListener('click', function(e) {
 });
 </script>
 
+<script>
+(function () {
+  function collapseMissions() {
+    document.querySelectorAll('.mission').forEach(function(card) {
+      if (!card.dataset.initialized) {
+        card.classList.add('collapsed');
+        card.dataset.initialized = 'true';
+      }
+    });
+  }
+
+  collapseMissions();
+
+  const observer = new MutationObserver(collapseMissions);
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+})();
+</script>
+
 </body>
 </html>
