@@ -661,5 +661,46 @@ header p {
 }
 </style>
 
+<style>
+/* 보물 조각 기본 디자인 */
+.piece {
+  background: #e1e7ed;
+  color: #7b8794;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+/* 획득한 보물 조각 */
+.piece.on {
+  background: linear-gradient(
+    135deg,
+    #ffe98a,
+    #f5bc38,
+    #d99a16
+  );
+  color: #684500;
+  font-weight: 900;
+  border: 2px solid #fff0a6;
+  box-shadow: 0 0 12px #ffd70080;
+  animation: treasureGlow 2s ease-in-out infinite;
+}
+
+/* 금색 반짝임 효과 */
+@keyframes treasureGlow {
+  0%, 100% {
+    box-shadow: 0 0 6px #ffd70070;
+  }
+  50% {
+    box-shadow: 0 0 18px #ffd700cc;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .piece.on {
+    animation: none;
+  }
+}
+</style>
+
 </body>
 </html>
