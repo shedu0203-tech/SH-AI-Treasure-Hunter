@@ -198,6 +198,7 @@ http.createServer(async (req, res) => {
           teams: summary(),
           places: db.places,
           open: db.open,
+          gps: db.gps,
           missions: missions.map(m => ({
             title: m.title,
             type: m.type,
