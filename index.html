@@ -702,5 +702,35 @@ header p {
 }
 </style>
 
+<style>
+/* 미션 유형별 아이콘 */
+.mission h3::before {
+  content: "🗺️ ";
+}
+
+.mission:has(.tag) h3 {
+  display: block;
+}
+
+/* 완료 미션 */
+.mission.done h3::before {
+  content: "🏆 ";
+}
+
+.mission.done h3::after {
+  content: " ✅";
+  color: #16a34a;
+}
+
+/* 미션 제목 터치 효과 */
+.mission h3 {
+  transition: color 0.2s ease;
+}
+
+.mission h3:active {
+  color: #d4a32b;
+}
+</style>
+
 </body>
 </html>
