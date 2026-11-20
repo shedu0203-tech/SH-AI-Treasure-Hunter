@@ -343,8 +343,20 @@ if (typeof window.shPreviousCount === 'number' &&
     count > window.shPreviousCount) {
   notify('🎉 미션 성공! 💎 보물 조각을 획득했습니다!');
 }
-window.shPreviousCount = count;
-
+const newTreasure = typeof window.shPreviousCount === 'number' && count > window.shPreviousCount;
+  window.shPreviousCount = count;
+if (newTreasure) {
+  document.querySelectorAll('.piece.on').forEach(piece => {
+    piece.animate(
+      [
+        { transform: 'scale(1)' },
+        { transform: 'scale(1.25)' },
+        { transform: 'scale(1)' }
+      ],
+      { duration: 700, easing: 'ease-out' }
+    );
+  });
+}
 
  $('treasure').classList.toggle('hidden',count!==TOTAL);
 
