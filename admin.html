@@ -235,6 +235,8 @@ function render(){
  $('eventStatus').textContent=data.open?'🟢 행사 진행 중':'🔴 행사 중지';
  $('eventOpen').checked=Boolean(data.open);
 
+$('testMode').checked = Boolean(data.testMode);
+
  const requests=[];
  teams.forEach(t=>{
   (t.pending||[]).forEach(number=>{
