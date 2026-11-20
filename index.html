@@ -9,7 +9,7 @@
 <title>SH AI 트레저헌터</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f2f6fb;color:#18283b;font-family:Arial,"Malgun Gothic",sans-serif}
+8body{margin:0;background:#f2f6fb;color:#18283b;font-family:Arial,"Malgun Gothic",sans-serif}
 header{background:#123c69;color:white;padding:23px 16px;text-align:center}
 header h1{font-size:25px;margin:5px}
 header p{font-size:13px;margin:8px}
@@ -448,5 +448,32 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 }
 
 </script>
+  
+<style>
+/* SH AI 트레저헌터 미션 카드 */
+.mission {
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.mission.collapsed {
+  max-height: 85px;
+  overflow: hidden;
+}
+.mission.collapsed button {
+  display: none;
+}
+.mission:active {
+  box-shadow: 0 3px 12px #0002;
+}
+</style>
+<script>
+document.addEventListener('click', function(e) {
+  if (e.target.closest('button, input, select, textarea')) return;
+  const card = e.target.closest('.mission');
+  if (!card) return;
+  card.classList.toggle('collapsed');
+});
+</script>
+
 </body>
 </html>
