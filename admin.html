@@ -264,7 +264,7 @@ function render(){
    <input type="text" maxlength="100" id="place${i}" value="${esc(places[i]||'')}" placeholder="미션 장소 입력">
   </div>
  `).join('');
-  if (document.activeElement?.closest('#gpsFields') === null) {
+  if (!$('gpsFields').querySelector('input')) {
 $('gpsFields').innerHTML = missions.map((m, i) => {
   const p = (data.gps || [])[i];
   return `
