@@ -356,6 +356,9 @@ function render(){
    '<p>📍 '+place+'</p>'+
    '<p>'+description+'</p>'+
    '<p class="small">상태: '+status+'</p>'+
+    
+'<p class="small">📍 GPS 위치 확인 후 미션에 도전하세요.</p>'+
+
    (completed?'<strong>✅ 미션 성공 · 보물 조각 획득</strong>':
     waiting?'<strong>⏳ 관리자 승인을 기다리는 중</strong>':
     '<button class="full" '+(!config.open?'disabled':'')+
