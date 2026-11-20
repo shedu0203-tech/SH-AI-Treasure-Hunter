@@ -141,7 +141,7 @@ function getCurrentGPS() {
 
 async function checkMissionGPS(missionIndex) {
   try {
-    const target = config?.gps?.[missionIndex];
+    const target = config?.missions?.[missionIndex]?.gps;
 
     if (!target) {
       notify('미션 GPS 장소가 설정되지 않았습니다.', true);
