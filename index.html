@@ -338,6 +338,13 @@ function render(){
   '<div class="piece '+(v?'on':'')+'">'+
   (v?'💎':i+1)+'</div>'
  ).join('');
+  
+if (typeof window.shPreviousCount === 'number' &&
+    count > window.shPreviousCount) {
+  notify('🎉 미션 성공! 💎 보물 조각을 획득했습니다!');
+}
+window.shPreviousCount = count;
+
 
  $('treasure').classList.toggle('hidden',count!==TOTAL);
 
