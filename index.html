@@ -761,5 +761,36 @@ header p {
 }
 </style>
 
+<style>
+/* 관리자 승인 완료 미션 표시 */
+.mission.done h3::after {
+  content: "완료 ✓";
+  display: inline-block;
+  float: right;
+  margin-right: 28px;
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* 완료 미션 배경 */
+.mission.done {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+/* 작은 휴대폰 화면 대응 */
+@media (max-width: 400px) {
+  .mission.done h3::after {
+    font-size: 11px;
+    padding: 4px 7px;
+    margin-right: 20px;
+  }
+}
+</style>
+
 </body>
 </html>
