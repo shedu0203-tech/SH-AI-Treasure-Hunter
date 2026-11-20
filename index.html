@@ -455,10 +455,27 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   cursor: pointer;
   transition: box-shadow 0.2s;
 }
+
 .mission.collapsed {
-  max-height: 85px;
-  overflow: hidden;
+  max-height: none;
+  overflow: visible;
 }
+.mission.collapsed > :not(h3) {
+  display: none;
+}
+.mission h3 {
+  cursor: pointer;
+  margin: 0;
+  padding: 12px 0;
+}
+.mission h3::after {
+  content: " ▲";
+  float: right;
+}
+.mission.collapsed h3::after {
+  content: " ▼";
+}
+
 .mission.collapsed button {
   display: none;
 }
