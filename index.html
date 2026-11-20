@@ -101,6 +101,17 @@ button {
   border-color: #efcc78;
 }
 
+
+@keyframes treasurePop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+.piece.on {
+  animation: treasurePop 0.7s ease-out;
+}
+  
 </style>
 </head>
 <body>
