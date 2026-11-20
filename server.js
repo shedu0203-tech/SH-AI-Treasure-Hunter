@@ -130,7 +130,10 @@ http.createServer(async (req, res) => {
           points: m.points || 100,
           gps: db.gps?.[i] || null
         })),
-        open: db.open
+        
+open: db.open,
+testMode: db.testMode === true
+
       });
     }
 
