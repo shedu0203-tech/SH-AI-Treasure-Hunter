@@ -124,7 +124,8 @@ http.createServer(async (req, res) => {
           place: db.places[i],
           description: m.description,
           type: m.type,
-          points: m.points || 100
+          points: m.points || 100,
+          gps: db.gps?.[i] || null
         })),
         open: db.open
       });
