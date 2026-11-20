@@ -359,6 +359,8 @@ function render(){
     
 '<p class="small">📍 GPS 위치 확인 후 미션에 도전하세요.</p>'+
 
+'<button type="button" class="full" onclick="showMissionDistance('+id+')">📍 미션 장소 거리 확인</button>'+
+
    (completed?'<strong>✅ 미션 성공 · 보물 조각 획득</strong>':
     waiting?'<strong>⏳ 관리자 승인을 기다리는 중</strong>':
     '<button class="full" '+(!config.open?'disabled':'')+
@@ -369,7 +371,45 @@ function render(){
  if(!config.open)notify('현재 행사가 종료되었거나 일시 중지되었습니다.',true);
 }
 
-async function submitMission(id){
+
+async function showMissionDistance(id) {
+  try {
+    if (config?.testMode === true) {
+      notify('테스트 모드에서는 GPS 거리를 확인하지 않습니다.');
+      return;
+    }
+
+    const target = config?.missions?.[id - 1]?.gps;
+
+    if (!target || !Number.isFinite(Number(target.lat)) ||
+        !Number.isFinite(Number(target.lng))) {
+      notify('관리자가 미션 GPS 장소를 설정하지 않았습니다.', true);
+      return;
+    }
+
+    const current = await getCurrentGPS();
+
+    if (current.accuracy > GPS_RADIUS) {
+      notify('GPS 정확도가 낮습니다. 야외에서 다시 확인해주세요.', true);
+      return;
+    }
+
+    const distance = gpsDistance(
+      current.lat, current.lng,
+      Number(target.lat), Number(target.lng)
+    );
+
+    if (distance <= GPS_RADIUS) {
+      notify('🏁 미션 장소에 도착했습니다!');
+    } else {
+      notify('📍 미션 장소까지 약 ' + Math.round(distance) + 'm 남았습니다.');
+    }
+  } catch (error) {
+    notify(error.message, true);
+  }
+}
+
+  async function submitMission(id){
  if(busy)return;
   
 const gpsOK = await checkMissionGPS(id - 1);
