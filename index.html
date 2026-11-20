@@ -357,7 +357,10 @@ if (typeof window.shPreviousCount === 'number' &&
 const newTreasure = typeof window.shPreviousCount === 'number' && count > window.shPreviousCount;
   window.shPreviousCount = count;
 if (newTreasure) {
-  document.querySelectorAll('.piece.on').forEach(piece => {
+
+document.querySelectorAll('.piece.on').forEach((piece, index) => {
+  if (index !== count - 1) return;
+
     piece.animate(
       [
         { transform: 'scale(1)' },
