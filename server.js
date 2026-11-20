@@ -15,8 +15,11 @@ let db = {
   teams: {},
   places: missions.map(m => m.place),
 
+
 open: true,
-gps: Array.from({length: 15}, () => null)
+gps: Array.from({length: 15}, () => null),
+testMode: false
+
 
 };
 
