@@ -732,5 +732,34 @@ header p {
 }
 </style>
 
+<style>
+/* SH AI 트레저헌터 유형별 아이콘 */
+
+/* 협동: 1~3번 */
+.mission:nth-child(-n+3) h3::before {
+  content: "🤝 ";
+}
+
+/* 관찰: 4~6번 */
+.mission:nth-child(n+4):nth-child(-n+6) h3::before {
+  content: "🔍 ";
+}
+
+/* 퀴즈: 7~9번 */
+.mission:nth-child(n+7):nth-child(-n+9) h3::before {
+  content: "🧠 ";
+}
+
+/* 추리: 10~12번 */
+.mission:nth-child(n+10):nth-child(-n+12) h3::before {
+  content: "🕵️ ";
+}
+
+/* 도전: 13~15번 */
+.mission:nth-child(n+13):nth-child(-n+15) h3::before {
+  content: "🏆 ";
+}
+</style>
+
 </body>
 </html>
