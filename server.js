@@ -257,6 +257,9 @@ http.createServer(async (req, res) => {
         }
         if (typeof b.open === 'boolean') db.open = b.open;
         
+if (typeof b.testMode === 'boolean') db.testMode = b.testMode;
+
+        
 if (Array.isArray(b.gps) && b.gps.length === COUNT) {
   db.gps = b.gps.map(p => {
     if (p === null) return null;
