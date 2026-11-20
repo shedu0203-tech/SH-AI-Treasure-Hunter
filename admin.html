@@ -317,6 +317,7 @@ async function saveSettings(){
 }
 
 async function saveGPS(){
+  try {
   const gps = (data.missions || []).map((m, i) => {
     const lat = $('lat' + i).value.trim();
     const lng = $('lng' + i).value.trim();
@@ -339,6 +340,9 @@ async function saveGPS(){
   });
 
   await action('settings', {gps}, 'GPS 좌표가 저장되었습니다.');
+  } catch (e) {
+    alert('GPS 저장 오류: ' + e.message);
+  }
 }
 
 function exportCSV(){
