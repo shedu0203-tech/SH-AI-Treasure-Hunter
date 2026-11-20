@@ -139,6 +139,46 @@ function getCurrentGPS() {
   });
 }
 
+async function checkMissionGPS(missionIndex) {
+  try {
+    const target = config?.gps?.[missionIndex];
+
+    if (!target) {
+      notify('미션 GPS 장소가 설정되지 않았습니다.', true);
+      return false;
+    }
+
+    const current = await getCurrentGPS();
+
+    if (current.accuracy > GPS_RADIUS) {
+      notify('GPS 정확도가 낮습니다. 야외에서 다시 시도해주세요.', true);
+      return false;
+    }
+
+    const distance = gpsDistance(
+      current.lat,
+      current.lng,
+      target.lat,
+      target.lng
+    );
+
+    if (distance > GPS_RADIUS) {
+      notify(
+        '미션 장소까지 약 ' + Math.round(distance) + 'm 남았습니다.',
+        true
+      );
+      return false;
+    }
+
+    notify('미션 장소에 도착했습니다!');
+    return true;
+
+  } catch (error) {
+    notify(error.message, true);
+    return false;
+  }
+}
+
 function esc(v){
  return String(v??'').replace(/[&<>"']/g,c=>({
  '&':'&amp;','<':'&lt;','>':'&gt;',
