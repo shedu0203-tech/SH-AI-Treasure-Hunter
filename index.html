@@ -295,6 +295,10 @@ function render(){
 
 async function submitMission(id){
  if(busy)return;
+  
+const gpsOK = await checkMissionGPS(id - 1);
+if (!gpsOK) return;
+
  if(!confirm(id+'번 미션을 수행했나요? 관리자에게 승인을 요청합니다.'))return;
  busy=true;
  try{
