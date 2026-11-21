@@ -95,7 +95,9 @@ const publicTeam = (id, t) => {
     pieces: completed,
     total: COUNT,
     unlocked: completed === COUNT,
-    updated: t.updated
+    finalRequested: !!t.finalRequested,
+finalApproved: !!t.finalApproved,
+updated: t.updated
   };
 };
 
