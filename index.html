@@ -354,12 +354,14 @@ if (typeof window.shPreviousCount === 'number' &&
     count > window.shPreviousCount) {
   notify('🎉 미션 성공! 💎 보물 조각을 획득했습니다!');
 }
-const newTreasure = typeof window.shPreviousCount === 'number' && count > window.shPreviousCount;
+const newTreasure = Array.isArray(window.shPreviousDone) && done.some((v,i)=>v && !window.shPreviousDone[i]);
   window.shPreviousCount = count;
+const newlyCompleted = done.map((v,i)=>v && !(window.shPreviousDone || [])[i]);
+window.shPreviousDone = [...done];  
 if (newTreasure) {
 
 document.querySelectorAll('.piece.on').forEach((piece, index) => {
-  if (index !== count - 1) return;
+if (!newlyCompleted[index]) return;
 
     piece.animate(
       [
