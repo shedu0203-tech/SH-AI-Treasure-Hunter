@@ -220,6 +220,7 @@ if (u.pathname === '/api/final-request' && req.method === 'POST') {
   });
 }
 
+
     if (u.pathname.startsWith('/api/admin/')) {
       if (!auth(req)) return send(res, 401, {
         error: '관리자 인증이 필요합니다'
@@ -244,6 +245,29 @@ if (u.pathname === '/api/final-request' && req.method === 'POST') {
       }
 
       const b = await read(req);
+
+if (u.pathname === '/api/admin/final-approve') {
+  const id = String(Number(b.team));
+  const t = db.teams[id];
+
+  if (!t) {
+    return send(res, 404, {error:'팀을 찾을 수 없습니다.'});
+  }
+
+  if (!t.finalRequested) {
+    return send(res, 400, {error:'최종 승인 요청이 없습니다.'});
+  }
+
+  if (!Array.isArray(t.done) || t.done.filter(Boolean).length !== COUNT) {
+    return send(res, 400, {error:'15개 미션을 모두 완료해야 합니다.'});
+  }
+
+  t.finalApproved = true;
+  t.updated = Date.now();
+  save();
+
+  return send(res, 200, {approved:true});
+}
 
       if (u.pathname === '/api/admin/approve') {
         const id = String(Number(b.team));
