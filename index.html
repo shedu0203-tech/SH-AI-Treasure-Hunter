@@ -367,7 +367,7 @@ async function join(){
  }catch(e){notify(e.message,true)}
  finally{busy=false}
 }
-
+let openedMissionId = null;
 function render(){
  if(!state||!config)return;
  $('login').classList.add('hidden');
@@ -431,7 +431,9 @@ if (finalButton) {
         : '<button type="button" class="full" onclick="requestFinalApproval()">🏆 관리자 최종 승인 요청</button>';
 }
 
-
+openedMissionId =
+  document.querySelector('#missions .mission.open')?.dataset.id
+  ?? openedMissionId;
  $('missions').innerHTML=missions.map((m,i)=>{
   const id=Number(m.id)||i+1;
   const completed=done[id-1];
@@ -441,7 +443,7 @@ if (finalButton) {
   const place=esc(m.place||'관리자 지정 장소');
   const description=esc(m.description||'현장 안내에 따라 수행하세요.');
 
-  return '<div class="mission '+(completed?'done':waiting?'pending':'')+'">'+
+  return '<div data-id="'+id+'" class="mission '+(completed?'done':waiting?'pending':'')+(String(openedMissionId)===String(id)?' open':'')+'">'+
    '<span class="tag">'+type+'</span>'+
    '<h3>'+id+'. '+esc(m.title)+'</h3>'+
    '<p>📍 '+place+'</p>'+
@@ -458,7 +460,11 @@ if (finalButton) {
     ' onclick="submitMission('+id+')">정답 제출하기</button>')+
    '</div>';
  }).join('');
-
+if (openedMissionId != null) {
+  const opened = Array.from(document.querySelectorAll('#missions .mission'))
+    .find(el => el.dataset.id === String(openedMissionId));
+  if (opened) opened.classList.add('open');
+}
  if(!config.open)notify('현재 행사가 종료되었거나 일시 중지되었습니다.',true);
 }
 
