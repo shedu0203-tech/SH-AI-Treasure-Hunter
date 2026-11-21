@@ -412,7 +412,7 @@ if (!newlyCompleted[index]) return;
    (completed?'<strong>✅ 미션 성공 · 보물 조각 획득</strong>':
     waiting?'<strong>⏳ 관리자 승인을 기다리는 중</strong>':
     '<button class="full" '+(!config.open?'disabled':'')+
-    ' onclick="submitMission('+id+')">미션 수행 완료 요청</button>')+
+    ' onclick="submitMission('+id+')">정답 제출하기</button>')+
    '</div>';
  }).join('');
 
@@ -463,13 +463,17 @@ async function showMissionDistance(id) {
 const gpsOK = await checkMissionGPS(id - 1);
 if (!gpsOK) return;
 
- if(!confirm(id+'번 미션을 수행했나요? 관리자에게 승인을 요청합니다.'))return;
+ const answer = prompt(id + '번 미션 정답을 입력하세요.');
+if (answer === null || !answer.trim()) return;
  busy=true;
  try{
-  const result=await api('/api/submit',{mission:id});
+  const result=await api('/api/submit',{
+  mission:id,
+  answer:answer.trim()
+});
   state=result.team;
   render();
-  notify('미션 요청이 접수되었습니다. 관리자 승인을 기다리세요.');
+  notify('🎉 정답입니다! 미션 성공! 보물 조각을 획득했습니다.');
  }catch(e){notify(e.message,true)}
  finally{busy=false}
 }
