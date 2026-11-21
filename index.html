@@ -33,7 +33,8 @@ button:disabled{background:#a5afba}
 .bar{height:100%;background:#26a878;transition:width .3s}
 .pieces{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:15px 0}
 .piece{background:#172747;border-radius:9px;text-align:center;padding:14px 0;font-weight:bold;color:#f5d88;border:2px solid #dba638;}
-.piece.on{background:linear-gradient(135deg,#ffd700,#ffae00);color:#614300;border:2px solid #fff0a0;box-shadow:0 0 15px #ffd700;}
+.piece.on{background:linear-gradient(135deg,#ffd700,#ffae00);color:#614300;border:2px solid #fff0a0;box-shadow:0 0 15px #ffd700;}  
+.piece:not(.on)::before{content:"🔒 ";font-size:14px;}
 .hidden{display:none}
 .error{color:#c0392b}
 .success{color:#167e49}
