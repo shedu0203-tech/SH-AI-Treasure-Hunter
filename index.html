@@ -396,6 +396,7 @@ $('treasure').classList.toggle(
 const finalButton = document.getElementById('finalApprovalArea');
 
 if (finalButton) {
+  finalButton.classList.toggle('hidden', count !== TOTAL);
   finalButton.innerHTML = count !== TOTAL
     ? ''
     : state.finalApproved
