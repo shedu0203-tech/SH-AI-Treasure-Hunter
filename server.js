@@ -196,6 +196,30 @@ t.done[i] = true;
       return send(res, 200, {team: publicTeam(id, t)});
     }
 
+// 15개 미션 완료 시 최종 승인 요청
+if (u.pathname === '/api/final-request' && req.method === 'POST') {
+  const x = team(req);
+  if (!x) return send(res, 401, {error: '팀 인증 실패'});
+
+  const [id, t] = x;
+  if (!t.done || t.done.filter(Boolean).length !== COUNT) {
+    return send(res, 400, {error: '15개 미션을 먼저 완료해주세요.'});
+  }
+
+  if (t.finalApproved) {
+    return send(res, 200, {approved: true});
+  }
+
+  t.finalRequested = true;
+  t.updated = Date.now();
+  save();
+
+  return send(res, 200, {
+    requested: true,
+    message: '관리자 최종 승인을 기다리고 있습니다.'
+  });
+}
+
     if (u.pathname.startsWith('/api/admin/')) {
       if (!auth(req)) return send(res, 401, {
         error: '관리자 인증이 필요합니다'
