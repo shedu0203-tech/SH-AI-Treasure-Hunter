@@ -144,11 +144,24 @@ button {
 <div id="pieces" class="pieces"></div>
 </div>
 
-<div id="treasure" class="card hidden">
-<h2>🎉 보물 상자 개방!</h2>
-<p>15개 미션을 모두 완료했습니다.</p>
-<p>관리자에게 최종 보물 확인을 요청하세요.</p>
+<div id="treasure" class="card hidden"
+     style="text-align:center">
+  <div style="font-size:70px;
+              animation:openBox 1.5s infinite alternate">
+    🎁
+  </div>
+  <h2>🎉 전설의 보물 발견!</h2>
+  <p>15개 미션을 모두 완료했습니다!</p>
+  <h2>🏆 TREASURE HUNTER 성공!</h2>
+  <p>관리자에게 최종 보물 확인을 요청하세요.</p>
 </div>
+
+<style>
+@keyframes openBox {
+  from {transform:scale(0.8) rotate(-5deg)}
+  to {transform:scale(1.2) rotate(5deg)}
+}
+</style>
 
 <div class="card">
 <h2>🧭 자유 탐색 미션</h2>
