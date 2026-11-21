@@ -278,6 +278,9 @@ $('testMode').checked = Boolean(data.testMode);
     ${rate}%
    </td>
    <td>${(t.pending||[]).length}건</td>
+   
+<td>${count===15 ? (t.finalApproved ? '🏆 최종 승인 완료' : t.finalRequested ? `<button class="green" onclick="approveFinal(${Number(t.id)})">🏆 최종 승인</button>` : '최종 승인 요청 대기') : '미션 진행 중'}</td>
+
    <td><button class="danger" ${!t.name?'disabled':''} onclick="resetTeam(${Number(t.id)})">초기화</button></td>
    </tr>`;
  }).join('');
@@ -320,6 +323,15 @@ async function action(route,body,success){
 async function approve(team,mission){
  if(!confirm(team+'팀의 '+mission+'번 미션을 승인하시겠습니까?'))return;
  await action('approve',{team,mission},'미션 승인이 완료되었습니다.');
+}
+
+async function approveFinal(team){
+  if(!confirm(team+'팀의 15개 미션을 최종 승인하시겠습니까?')) return;
+  await action(
+    'final-approve',
+    {team},
+    '최종 승인이 완료되었습니다!'
+  );
 }
 
 async function resetTeam(team){
