@@ -1,4 +1,8 @@
 
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY;
+
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
