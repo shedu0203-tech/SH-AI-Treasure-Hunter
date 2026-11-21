@@ -541,6 +541,29 @@ async function refresh(){
  }
 }
 
+async function requestFinalApproval() {
+  if (busy) return;
+
+  if (!state || state.done.filter(Boolean).length !== TOTAL) {
+    notify('15개 미션을 모두 완료해주세요.', true);
+    return;
+  }
+
+  if (state.finalApproved || state.finalRequested) return;
+
+  busy = true;
+  try {
+    await api('/api/final-request', {});
+    state.finalRequested = true;
+    render();
+    notify('🏆 관리자에게 최종 승인을 요청했습니다.');
+  } catch (e) {
+    notify(e.message, true);
+  } finally {
+    busy = false;
+  }
+}
+
 init();
 setInterval(refresh,5000);
  
