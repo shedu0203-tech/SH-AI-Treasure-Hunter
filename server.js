@@ -180,15 +180,16 @@ testMode: db.testMode === true
       }
       if (t.done[i]) return send(res, 409, {error: '이미 완료한 미션입니다'});
 
-      if (missions[i].type === 'approve') {
-        if (!t.pending.includes(i + 1)) t.pending.push(i + 1);
-      } else {
-        const answer = String(missions[i].answer || '').trim().toUpperCase();
-        if (!answer || String(b.answer || '').trim().toUpperCase() !== answer) {
-          return send(res, 400, {error: '정답이 아닙니다'});
-        }
-        t.done[i] = true;
-      }
+     
+const answer = String(missions[i].answer || '').trim().toUpperCase();
+const submitted = String(b.answer || '').trim().toUpperCase();
+
+if (!answer || submitted !== answer) {
+  return send(res, 400, {error: '미션 정답을 다시 확인해주세요.'});
+}
+
+t.done[i] = true;
+ 
 
       t.updated = Date.now();
       save();
