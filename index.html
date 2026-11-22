@@ -1152,7 +1152,7 @@ function openTreasure() {
     result.classList.remove('hidden');
   }, 500);
 }
- function showMissionDistance(missionId) {
+async function showMissionDistance(missionId) {
   const id = Number(missionId);
 
   if (!Number.isInteger(id) || id < 1 || id > 15) {
@@ -1160,8 +1160,47 @@ function openTreasure() {
     return;
   }
 
-  alert(id + '번 미션의 GPS 장소를 확인합니다.');
- } 
+  try {
+    const response = await fetch('/api/config', {
+      cache: 'no-store'
+    });
+
+    if (!response.ok) throw new Error('설정 조회 실패');
+
+    const config = await response.json();
+    const place = config.places?.[id - 1];
+
+    let lat, lng;
+
+    if (Array.isArray(place)) {
+      [lat, lng] = place;
+    } else if (place && typeof place === 'object') {
+      lat = place.lat ?? place.latitude;
+      lng = place.lng ?? place.lon ?? place.longitude;
+    } else {
+      alert('GPS 장소 정보 형식을 확인해야 합니다.');
+      return;
+    }
+
+    lat = Number(lat);
+    lng = Number(lng);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) ||
+        Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+      alert(id + '번 미션 GPS 좌표가 설정되지 않았습니다.');
+      return;
+    }
+
+    window.open(
+      'https://www.google.com/maps/search/?api=1&query=' +
+      encodeURIComponent(lat + ',' + lng),
+      '_blank'
+    );
+  } catch (error) {
+    alert('GPS 정보를 불러오지 못했습니다.');
+    console.error(error);
+  }
+}
 </script>
 
 </body>
