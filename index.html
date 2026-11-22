@@ -1083,6 +1083,35 @@ input {
 </style>
 
 <script>
+  let popupMissionId = null;
+
+function openMissionPopup(id) {
+  const mission = config?.missions?.find(
+    m => Number(m.id) === Number(id)
+  );
+  if (!mission) return;
+
+  popupMissionId = id;
+
+  document.getElementById('popupMissionTitle').textContent =
+    id + '. ' + mission.title;
+
+  document.getElementById('popupMissionDesc').textContent =
+    mission.description || '';
+
+  const popup = document.getElementById('missionPopup');
+  popup.hidden = false;
+}
+
+function closeMissionPopup() {
+  document.getElementById('missionPopup').hidden = true;
+}
+
+function startPopupMission() {
+  if (popupMissionId == null) return;
+  closeMissionPopup();
+  showMissionDistance(popupMissionId);
+}
 function openTreasure() {
   const box = document.getElementById('treasureBox');
   const guide = document.getElementById('treasureGuide');
