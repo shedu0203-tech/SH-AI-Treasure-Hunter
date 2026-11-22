@@ -1152,6 +1152,16 @@ function openTreasure() {
     result.classList.remove('hidden');
   }, 500);
 }
+ function showMissionDistance(missionId) {
+  const id = Number(missionId);
+
+  if (!Number.isInteger(id) || id < 1 || id > 15) {
+    alert('미션 번호를 확인해주세요.');
+    return;
+  }
+
+  alert(id + '번 미션의 GPS 장소를 확인합니다.');
+ } 
 </script>
 
 </body>
