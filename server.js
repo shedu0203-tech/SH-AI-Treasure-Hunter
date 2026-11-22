@@ -342,7 +342,9 @@ if (Array.isArray(b.gps) && b.gps.length === COUNT) {
       return send(res, 405, {error: 'GET만 허용'});
     }
 
-    const name = u.pathname === '/' ? 'index.html' : u.pathname.slice(1);
+   const name = decodeURIComponent(
+  u.pathname === '/' ? 'index.html' : u.pathname.slice(1)
+); 
 
     
 if (!['index.html', 'admin.html', 'manifest.json', '✨ NEW MISSION_ 팀워크 암호 도전.png'].includes(name)) {
