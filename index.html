@@ -502,9 +502,10 @@ if (finalButton) {
         : '<button type="button" class="full" onclick="requestFinalApproval()">🏆 관리자 최종 승인 요청</button>';
 }
 
-openedMissionId =
-  document.querySelector('#missions .mission.open')?.dataset.id
-  ?? openedMissionId;
+const openedCard = document.querySelector('#missions .mission.open');
+if (openedCard) {
+  openedMissionId = Number(openedCard.dataset.id);
+}
  $('missions').innerHTML=missions.map((m,i)=>{
   const id=Number(m.id)||i+1;
   const completed=done[id-1];
