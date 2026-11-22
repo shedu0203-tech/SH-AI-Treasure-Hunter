@@ -140,6 +140,35 @@ button {
   animation: treasurePop 0.7s ease-out;
 }
  main h2 { color: #17365d; } 
+  .mission-popup[hidden] {
+  display: none !important;
+}
+
+.mission-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(4, 12, 35, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.mission-popup-card {
+  width: 100%;
+  max-width: 420px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  background: linear-gradient(145deg, #142b63, #071638);
+  color: white;
+  border: 3px solid #ffd45c;
+  border-radius: 24px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 0 30px #ffc83d77;
+  animation: missionAppear 2s ease-out both;
+}
 </style>
 </head>
 <body>
