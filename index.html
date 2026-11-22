@@ -1168,7 +1168,7 @@ async function showMissionDistance(missionId) {
     if (!response.ok) throw new Error('설정 조회 실패');
 
     const config = await response.json();
-    const place = config.missions?.find(m => Number(m.id) === Number(id))?.gps;
+    const place = config.missions?.[id - 1]?.gps;
 
     let lat, lng;
 
