@@ -546,7 +546,9 @@ document.getElementById('missions')
     const card = event.target.closest('.mission');
     if (!card) return;
 
-    openMissionPopup(Number(card.dataset.id));
+    openedMissionId = Number(card.dataset.id);
+card.classList.add('open');
+openMissionPopup(openedMissionId);
   });
 
 async function showMissionDistance(id) {
