@@ -344,7 +344,9 @@ if (Array.isArray(b.gps) && b.gps.length === COUNT) {
 
     const name = u.pathname === '/' ? 'index.html' : u.pathname.slice(1);
 
-    if (!['index.html', 'admin.html', 'manifest.json'].includes(name)) {
+    
+if (!['index.html', 'admin.html', 'manifest.json', '✨ NEW MISSION_ 팀워크 암호 도전.png'].includes(name)) {
+
       return send(res, 404, {error: '없음'});
     }
 
@@ -352,9 +354,11 @@ if (Array.isArray(b.gps) && b.gps.length === COUNT) {
     fs.readFile(file, (err, data) => {
       if (err) return send(res, 404, {error: '파일 없음'});
       res.writeHead(200, {
-        'Content-Type': name.endsWith('.html')
-          ? 'text/html; charset=utf-8'
-          : 'application/json',
+      'Content-Type': name.endsWith('.html')
+  ? 'text/html; charset=utf-8'
+  : name.endsWith('.png')
+    ? 'image/png'
+    : 'application/json',
         'Cache-Control': 'no-store'
       });
       res.end(data);
