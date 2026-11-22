@@ -523,7 +523,15 @@ if (openedMissionId != null) {
 }
  if(!config.open)notify('현재 행사가 종료되었거나 일시 중지되었습니다.',true);
 }
+document.getElementById('missions')
+  .addEventListener('click', function(event) {
+    if (event.target.closest('button')) return;
 
+    const card = event.target.closest('.mission');
+    if (!card) return;
+
+    openMissionPopup(Number(card.dataset.id));
+  });
 
 async function showMissionDistance(id) {
   try {
