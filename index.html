@@ -169,6 +169,16 @@ button {
   box-shadow: 0 0 30px #ffc83d77;
   animation: missionAppear 2s ease-out both;
 }
+ 
+.mission-characters {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  font-size: 32px;
+  margin: 12px auto;
+}
+   
 </style>
 </head>
 <body>
@@ -176,7 +186,9 @@ button {
   <div class="mission-popup-card">
     <button type="button" onclick="closeMissionPopup()">✕</button>
     <h2>✨ NEW MISSION ✨</h2>
-    <div>🧭 🗺️ 💎</div>
+    <div class="mission-characters">
+  🧑‍🚀 🤖
+</div>
     <h3 id="popupMissionTitle"></h3>
     <p id="popupMissionDesc"></p>
     <button type="button" onclick="startPopupMission()">
