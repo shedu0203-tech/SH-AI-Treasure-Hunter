@@ -333,6 +333,49 @@ function getCurrentGPS() {
   });
 }
 
+let liveGPS = null;
+let liveGPSWatchId = null;
+
+function startLiveGPS(onUpdate) {
+  if (!navigator.geolocation) {
+    alert('GPS를 지원하지 않는 기기입니다.');
+    return;
+  }
+
+  if (liveGPSWatchId !== null) {
+    navigator.geolocation.clearWatch(liveGPSWatchId);
+  }
+
+  liveGPSWatchId = navigator.geolocation.watchPosition(
+    position => {
+      liveGPS = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        accuracy: position.coords.accuracy
+      };
+
+      if (typeof onUpdate === 'function') {
+        onUpdate(liveGPS);
+      }
+    },
+    error => {
+      console.warn('실시간 GPS 오류:', error.message);
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 15000
+    }
+  );
+}
+
+function stopLiveGPS() {
+  if (liveGPSWatchId !== null) {
+    navigator.geolocation.clearWatch(liveGPSWatchId);
+    liveGPSWatchId = null;
+  }
+}
+
 async function checkMissionGPS(missionIndex) {
   
   if (config?.testMode === true) {
