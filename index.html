@@ -459,6 +459,8 @@ function updateMyLocation(gps) {
     Math.round(gps.accuracy) + 'm';
 }
 
+let activeMissionId = null;
+
 
 function startExploreMap() {
   initExploreMap();
@@ -744,6 +746,8 @@ function openMissionMap(id) {
   const mapCard = $('exploreMapCard');
   if (!mapCard) return;
   
+activeMissionId = Number(id);
+
 if (!document.getElementById('shMapBackBtn')) {
   const backBtn = document.createElement('button');
   backBtn.id = 'shMapBackBtn';
