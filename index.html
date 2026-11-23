@@ -1451,10 +1451,18 @@ function closeMissionPopup() {
   document.getElementById('missionPopup').hidden = true;
 }
 
-function startPopupMission() {
+async function startPopupMission() {
   if (popupMissionId == null) return;
+
+  const missionId = Number(popupMissionId);
+  const gpsOK = await checkMissionGPS(missionId - 1);
+
+  if (!gpsOK) {
+    return;
+  }
+
   closeMissionPopup();
-  showMissionDistance(popupMissionId);
+  notify('🎉 미션 장소에 도착했습니다! 미션을 시작하세요.');
 }
 function openTreasure() {
   const box = document.getElementById('treasureBox');
