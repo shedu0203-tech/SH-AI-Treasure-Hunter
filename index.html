@@ -457,6 +457,37 @@ function updateMyLocation(gps) {
   $('mapStatus').textContent =
     '📍 현재 위치 추적 중 · GPS 오차 약 ' +
     Math.round(gps.accuracy) + 'm';
+  
+  const target = config?.missions?.find(
+    m => Number(m.id) === activeMissionId
+  );
+
+  if (target && target.lat != null &&
+      target.lng != null) {
+    const lat = Number(target.lat);
+    const lng = Number(target.lng);
+
+    if (Number.isFinite(lat) &&
+        Number.isFinite(lng) &&
+        !(lat === 0 && lng === 0)) {
+      const distance = getDistanceMeters(
+        gps.lat, gps.lng, lat, lng
+      );
+
+      const accuracy = Number(gps.accuracy);
+
+      $('mapStatus').textContent =
+        '📍 미션까지 약 ' +
+        Math.round(distance) + 'm · GPS 오차 약 ' +
+        Math.round(accuracy) + 'm';
+
+      if (distance <= 10 && accuracy <= 10) {
+        $('mapStatus').textContent +=
+          ' · 미션 장소 도착!';
+      }
+    }
+  }
+
 }
 
 let activeMissionId = null;
