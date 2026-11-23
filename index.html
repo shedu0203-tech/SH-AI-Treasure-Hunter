@@ -738,6 +738,35 @@ openMissionPopup(openedMissionId);
 function openMissionMap(id) {
   const mapCard = $('exploreMapCard');
   if (!mapCard) return;
+  
+if (!document.getElementById('shMapBackBtn')) {
+  const backBtn = document.createElement('button');
+  backBtn.id = 'shMapBackBtn';
+  backBtn.textContent = '← 뒤로가기';
+
+  backBtn.style.cssText = `
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 10001;
+    padding: 12px 18px;
+    background: #123c69;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+  `;
+
+  backBtn.onclick = () => {
+    mapCard.classList.add('hidden');
+    backBtn.remove();
+  };
+
+  document.body.appendChild(backBtn);
+}
+
 
   mapCard.classList.remove('hidden');
   mapCard.scrollIntoView({
