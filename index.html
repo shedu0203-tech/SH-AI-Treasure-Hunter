@@ -732,6 +732,32 @@ card.classList.add('open');
 openMissionPopup(openedMissionId);
   });
 
+function openMissionMap(id) {
+  const mapCard = $('exploreMapCard');
+  if (!mapCard) return;
+
+  mapCard.classList.remove('hidden');
+  mapCard.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+
+  setTimeout(() => {
+    startExploreMap();
+    showMissionPins();   
+const target = config?.missions?.[id - 1];
+const lat = Number(target?.lat);
+const lng = Number(target?.lng);
+
+if (Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    !(lat === 0 && lng === 0) &&
+exploreMapInstance) {
+  exploreMapInstance.setView([lat, lng], 18);
+}
+  }, 300);
+}
+
 async function showMissionDistance(id) {
   try {
     if (config?.testMode === true) {
