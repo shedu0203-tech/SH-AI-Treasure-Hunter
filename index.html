@@ -444,7 +444,10 @@ function updateMyLocation(gps) {
     myLocationMarker.setLatLng(position);
   }
 
+  if (!exploreMapInstance._shCenteredOnce) {
   exploreMapInstance.setView(position, 17);
+  exploreMapInstance._shCenteredOnce = true;
+}
 
   $('mapStatus').textContent =
     '📍 현재 위치 추적 중 · GPS 오차 약 ' +
