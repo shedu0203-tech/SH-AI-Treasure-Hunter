@@ -398,6 +398,106 @@ function stopLiveGPS() {
   }
 }
 
+let exploreMapInstance = null;
+let myLocationMarker = null;
+
+function initExploreMap() {
+  if (exploreMapInstance) return;
+
+  if (typeof L === 'undefined') {
+    $('mapStatus').textContent =
+      '지도 라이브러리를 불러오지 못했습니다.';
+    return;
+  }
+
+  exploreMapInstance = L.map('exploreMap').setView(
+    [37.5665, 126.9780], 15
+  );
+
+  L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19
+    }
+  ).addTo(exploreMapInstance);
+
+  $('mapStatus').textContent =
+    'GPS 위치를 확인할 준비가 되었습니다.';
+}
+
+function updateMyLocation(gps) {
+  if (!exploreMapInstance || !gps) return;
+
+  const position = [gps.lat, gps.lng];
+
+  if (!myLocationMarker) {
+    myLocationMarker = L.circleMarker(position, {
+      radius: 9,
+      color: '#ffffff',
+      weight: 3,
+      fillColor: '#1683ff',
+      fillOpacity: 1
+    }).addTo(exploreMapInstance);
+  } else {
+    myLocationMarker.setLatLng(position);
+  }
+
+  exploreMapInstance.setView(position, 17);
+
+  $('mapStatus').textContent =
+    '📍 현재 위치 추적 중 · GPS 오차 약 ' +
+    Math.round(gps.accuracy) + 'm';
+}
+
+
+function startExploreMap() {
+  initExploreMap();
+
+  if (!exploreMapInstance) return;
+
+  setTimeout(() => {
+    exploreMapInstance.invalidateSize();
+  }, 300);
+showMissionPins();
+  startLiveGPS(updateMyLocation);
+}
+
+let missionMarkers = [];
+
+function showMissionPins() {
+  if (!exploreMapInstance || !config?.missions) return;
+
+  missionMarkers.forEach(marker =>
+    exploreMapInstance.removeLayer(marker)
+  );
+  missionMarkers = [];
+
+  config.missions.forEach((mission, index) => {
+    const lat = Number(mission.lat);
+    const lng = Number(mission.lng);
+
+    if (!Number.isFinite(lat) ||
+        !Number.isFinite(lng) ||
+        (lat === 0 && lng === 0)) return;
+   
+const marker = L.circleMarker([lat, lng], {
+  radius: 11,
+  color: '#ffffff',
+  weight: 3,
+  fillColor: '#ff3030',
+  fillOpacity: 1
+})
+
+      .addTo(exploreMapInstance)
+      .bindPopup(
+        '📍 ' + (index + 1) + '번 미션'
+      );
+
+    missionMarkers.push(marker);
+  });
+}
+
 async function checkMissionGPS(missionIndex) {
   
   if (config?.testMode === true) {
@@ -477,7 +577,11 @@ async function init(){
   const result=await api('/api/me');
   state=result.team;
   if(typeof result.open==='boolean')config.open=result.open;
-  render();
+  render(); 
+setTimeout(() => {
+  startExploreMap();
+}, 500);
+
  }catch(e){
   if(session){
    session='';
@@ -506,6 +610,10 @@ async function join(){
   localStorage.setItem('sh_treasure_token',session);
   state=result.team;
   render();
+setTimeout(() => {
+  startExploreMap();
+}, 500);
+
   $('notice').classList.add('hidden');
  }catch(e){notify(e.message,true)}
  finally{busy=false}
