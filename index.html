@@ -837,7 +837,9 @@ if (!document.getElementById('shMapBackBtn')) {
   setTimeout(() => {
     startExploreMap();
     showMissionPins();   
-const target = config?.missions?.[id - 1];
+const target = config?.missions?.find(
+  m => Number(m.id) === Number(id)
+);
 const lat = Number(target?.gps?.lat);
 const lng = Number(target?.gps?.lng);
 
