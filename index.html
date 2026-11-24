@@ -482,16 +482,21 @@ function updateMyLocation(gps) {
         Math.round(accuracy) + 'm';
 
       if (distance <= 10 && accuracy <= 10) {
-        $('mapStatus').textContent +=
-          ' · 미션 장소 도착!';
-      }
+  $('mapStatus').textContent +=
+    ' · 미션 장소 도착!';
+
+  if (arrivedMissionId !== activeMissionId) {
+    arrivedMissionId = activeMissionId;
+    notify('미션 장소에 도착했습니다!');
+  }
+}
     }
   }
 
 }
 
 let activeMissionId = null;
-
+let arrivedMissionId = null;
 function getDistanceMeters(lat1, lng1, lat2, lng2) {
   const R = 6371000;
   const dLat = (lat2 - lat1) * Math.PI / 180;
