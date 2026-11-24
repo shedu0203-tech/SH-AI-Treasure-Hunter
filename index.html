@@ -481,7 +481,7 @@ function updateMyLocation(gps) {
         Math.round(distance) + 'm · GPS 오차 약 ' +
         Math.round(accuracy) + 'm';
 
-      if (distance <= 10 && accuracy <= 10) {
+      if (config?.testMode === true || (distance <= 10 && accuracy <= 10)) {
   $('mapStatus').textContent +=
     ' · 미션 장소 도착!';
 
