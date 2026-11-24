@@ -548,8 +548,34 @@ character.style.cssText = `
   border: none;
   z-index: 3;
   cursor: pointer;
+  display: none;
 `;
+let startAngle = null;
 
+function findSHCharacter(event) {
+  if (!screen.isConnected) {
+    window.removeEventListener('deviceorientation', findSHCharacter);
+    return;
+  }
+
+  if (event.alpha == null) return;
+
+  if (startAngle === null) {
+    startAngle = event.alpha;
+    return;
+  }
+
+  const diff = Math.abs(
+    ((event.alpha - startAngle + 540) % 360) - 180
+  );
+
+  if (diff >= 45) {
+    character.style.display = 'block';
+    window.removeEventListener('deviceorientation', findSHCharacter);
+  }
+}
+
+window.addEventListener('deviceorientation', findSHCharacter);
 character.animate([
   { transform: 'translate(-60px, -40px)' },
   { transform: 'translate(60px, 40px)' },
