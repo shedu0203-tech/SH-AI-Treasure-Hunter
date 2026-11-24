@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1">
+<title>SH AR TEST</title>
+
+<style>
+body {
+  margin: 0;
+  background: #101827;
+  color: white;
+  font-family: sans-serif;
+  text-align: center;
+}
+h2 {
+  margin-top: 50px;
+}
+</style>
+  <script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+  }
+}
+  </script>
+</head>
+
+<body>
+<h2>SH AI 트레저헌터</h2>
+<p>AR 공간 인식 테스트</p>
+<p>AR 시작 후 바닥을 비춰주세요.</p>
+<p>초록색 원이 나타나면 화면을 터치하세요.</p>
+
+<script type="module">
+import * as THREE from
+'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+import { ARButton } from
+'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/webxr/ARButton.js';
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(
+  70, innerWidth / innerHeight, 0.01, 20
+);
+
+const renderer = new THREE.WebGLRenderer({
+  alpha: true,
+  antialias: true
+});
+
+renderer.setSize(innerWidth, innerHeight);
+renderer.xr.enabled = true;
+
+document.body.appendChild(renderer.domElement);
+
+document.body.appendChild(
+  ARButton.createButton(renderer, {
+    requiredFeatures: ['hit-test']
+  })
+);
+
+const ring = new THREE.Mesh(
+  new THREE.RingGeometry(0.12, 0.15, 32)
+    .rotateX(-Math.PI / 2),
+  new THREE.MeshBasicMaterial({
+    color: 0x00ff88
+  })
+);
+
+ring.matrixAutoUpdate = false;
+ring.visible = false;
+scene.add(ring);
+
+let hitSource = null;
+let requested = false;
+
+const controller = renderer.xr.getController(0);
+
+controller.addEventListener('select', () => {
+  if (!ring.visible) return;
+
+  const box = new THREE.Mesh(
+    new THREE.BoxGeometry(0.3, 0.3, 0.3),
+    new THREE.MeshNormalMaterial()
+  );
+
+  box.position.setFromMatrixPosition(ring.matrix);
+  box.position.y += 0.15;
+
+  scene.add(box);
+});
+
+scene.add(controller);
+
+renderer.setAnimationLoop((time, frame) => {
+  if (frame) {
+    const session = renderer.xr.getSession();
+    const space = renderer.xr.getReferenceSpace();
+
+    if (!requested) {
+      requested = true;
+
+      session.requestReferenceSpace('viewer')
+        .then(viewer => session.requestHitTestSource({
+          space: viewer
+        }))
+        .then(source => {
+          hitSource = source;
+        })
+        .catch(console.error);
+
+      session.addEventListener('end', () => {
+        requested = false;
+        hitSource = null;
+        ring.visible = false;
+      }, { once: true });
+    }
+
+    if (hitSource) {
+      const results = frame.getHitTestResults(hitSource);
+
+      if (results.length) {
+        const pose = results[0].getPose(space);
+        ring.visible = !!pose;
+
+        if (pose) {
+          ring.matrix.fromArray(pose.transform.matrix);
+        }
+      } else {
+        ring.visible = false;
+      }
+    }
+  }
+
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
