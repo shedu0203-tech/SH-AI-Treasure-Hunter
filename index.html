@@ -558,7 +558,16 @@ character.animate([
   duration: 4000,
   iterations: Infinity
 });
+character.onclick = () => {
+  const missionId = activeMissionId;
+  close.onclick();
 
+  $('exploreMapCard').classList.add('hidden');
+  document.getElementById('shMapBackBtn')?.remove();
+
+  notify('SH 캐릭터를 찾았습니다!');
+  openMissionPopup(missionId);
+};
 screen.append(video, character, close);
   document.body.appendChild(screen);
 
