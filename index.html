@@ -537,7 +537,29 @@ async function openSHCamera() {
     screen.remove();
   };
 
-  screen.append(video, close);
+  const character = document.createElement('button');
+character.textContent = '🕵️';
+character.style.cssText = `
+  position: absolute;
+  top: 45%;
+  left: 35%;
+  font-size: 85px;
+  background: transparent;
+  border: none;
+  z-index: 3;
+  cursor: pointer;
+`;
+
+character.animate([
+  { transform: 'translate(-60px, -40px)' },
+  { transform: 'translate(60px, 40px)' },
+  { transform: 'translate(-60px, -40px)' }
+], {
+  duration: 4000,
+  iterations: Infinity
+});
+
+screen.append(video, character, close);
   document.body.appendChild(screen);
 
   try {
