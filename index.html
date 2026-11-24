@@ -792,7 +792,10 @@ openMissionPopup(openedMissionId);
 
 function openMissionMap(id) {
   const mapCard = $('exploreMapCard');
-  if (!mapCard) return;
+  if (!mapCard) {
+  alert('지도 화면을 찾을 수 없습니다.');
+  return;
+}
   
 activeMissionId = Number(id);
 
