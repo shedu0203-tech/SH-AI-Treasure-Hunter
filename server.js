@@ -237,6 +237,7 @@ if (u.pathname === '/api/final-request' && req.method === 'POST') {
           teams: summary(),
           places: db.places,
           open: db.open,
+          testMode: db.testMode === true,
           gps: db.gps,
           missions: missions.map(m => ({
             title: m.title,
