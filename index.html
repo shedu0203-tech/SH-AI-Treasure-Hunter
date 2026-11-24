@@ -497,6 +497,66 @@ function updateMyLocation(gps) {
 
 let activeMissionId = null;
 let arrivedMissionId = null;
+  let shCameraStream = null;
+
+async function openSHCamera() {
+  if (document.getElementById('shCameraScreen')) return;
+
+  const screen = document.createElement('div');
+  screen.id = 'shCameraScreen';
+  screen.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 20000;
+  `;
+
+  const video = document.createElement('video');
+  video.autoplay = true;
+  video.playsInline = true;
+  video.muted = true;
+  video.style.cssText = `
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  `;
+
+  const close = document.createElement('button');
+  close.textContent = '카메라 닫기';
+  close.style.cssText = `
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 2;
+  `;
+
+  close.onclick = () => {
+    shCameraStream?.getTracks().forEach(t => t.stop());
+    shCameraStream = null;
+    screen.remove();
+  };
+
+  screen.append(video, close);
+  document.body.appendChild(screen);
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' },
+      audio: false
+    });
+
+    if (!screen.isConnected) {
+      stream.getTracks().forEach(t => t.stop());
+      return;
+    }
+
+    shCameraStream = stream;
+    video.srcObject = stream;
+  } catch (error) {
+    close.onclick();
+    alert('카메라 권한을 확인해주세요.');
+  }
+}
 function getDistanceMeters(lat1, lng1, lat2, lng2) {
   const R = 6371000;
   const dLat = (lat2 - lat1) * Math.PI / 180;
