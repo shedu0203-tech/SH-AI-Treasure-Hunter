@@ -462,10 +462,10 @@ function updateMyLocation(gps) {
     m => Number(m.id) === activeMissionId
   );
 
-  if (target && target.lat != null &&
-      target.lng != null) {
-    const lat = Number(target.lat);
-    const lng = Number(target.lng);
+  if (target && target.gps?.lat != null &&
+    target.gps?.lng != null) {
+  const lat = Number(target.gps.lat);
+  const lng = Number(target.gps.lng);
 
     if (Number.isFinite(lat) &&
         Number.isFinite(lng) &&
