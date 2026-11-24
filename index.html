@@ -533,8 +533,8 @@ function showMissionPins() {
   missionMarkers = [];
 
   config.missions.forEach((mission, index) => {
-    const lat = Number(mission.lat);
-    const lng = Number(mission.lng);
+    const lat = Number(mission.gps?.lat);
+const lng = Number(mission.gps?.lng);
 
     if (!Number.isFinite(lat) ||
         !Number.isFinite(lng) ||
@@ -838,8 +838,8 @@ if (!document.getElementById('shMapBackBtn')) {
     startExploreMap();
     showMissionPins();   
 const target = config?.missions?.[id - 1];
-const lat = Number(target?.lat);
-const lng = Number(target?.lng);
+const lat = Number(target?.gps?.lat);
+const lng = Number(target?.gps?.lng);
 
 if (Number.isFinite(lat) &&
     Number.isFinite(lng) &&
