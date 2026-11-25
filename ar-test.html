@@ -77,6 +77,7 @@ scene.add(ring);
 let hitSource = null;
 let requested = false;
 let characterSpawned = false;
+let activeCharacter = null;
 const controller = renderer.xr.getController(0);
 
   function spawnCharacter() {
@@ -92,6 +93,7 @@ loader.load('./sh-character.glb', (gltf) => {
   character.position.copy(position);
   character.scale.setScalar(0.5);
   scene.add(character);
+  activeCharacter = character;
   if (gltf.animations.length > 0) {
   const mixer = new THREE.AnimationMixer(character);
   mixers.push(mixer);
@@ -102,7 +104,23 @@ loader.load('./sh-character.glb', (gltf) => {
   characterSpawned = false;
 });
 }
+controller.addEventListener('select', () => {
+  if (!activeCharacter) return;
 
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromXRController(controller);
+
+  const hits = raycaster.intersectObject(activeCharacter, true);
+
+  if (hits.length > 0) {
+    console.log('캐릭터 터치 성공');
+    const speech = new SpeechSynthesisUtterance(
+  '안녕! 나를 찾았구나. 이제 미션을 시작해 볼까?'
+);
+speech.lang = 'ko-KR';
+window.speechSynthesis.speak(speech);
+  }
+});
 scene.add(controller);
 const mixers = [];
 const clock = new THREE.Clock();
