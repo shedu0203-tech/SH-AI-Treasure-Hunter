@@ -107,12 +107,7 @@ loader.load('./sh-character.glb', (gltf) => {
 controller.addEventListener('select', () => {
   if (!activeCharacter) return;
 
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromXRController(controller);
-
-  const hits = raycaster.intersectObject(activeCharacter, true);
-
-  if (hits.length > 0) {
+    if (activeCharacter) {
     console.log('캐릭터 터치 성공');
     activeCharacter.scale.setScalar(0.3);
     const speech = new SpeechSynthesisUtterance(
