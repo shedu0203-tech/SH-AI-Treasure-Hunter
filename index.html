@@ -333,19 +333,24 @@ body:has(#game:not(.hidden)) header {
 
 #pieces .piece {
   width: 100%;
-  height: 65px;
-  padding: 0;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  padding: 0 0 8px;
+  box-sizing: border-box;
   border: none;
   border-radius: 0;
   clip-path: polygon(22% 0,78% 0,100% 32%,50% 100%,0 32%);
-  background: conic-gradient(from 45deg,#ffffff,#8295ac,#e8f2ff,#52657d,#ffffff);
+  background: conic-gradient(from 45deg,#ffffff,#8c9db5,#e8f2ff,#63758e,#ffffff,#aabbd0,#ffffff);
   color: #172b46;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 900;
-  font-size: 15px;
+  font-size: 10px;
+  white-space: nowrap;
 }
+  
 
 #pieces .piece.on {
   background: conic-gradient(from 45deg,#baffff,#007bff,#48eaff,#0048bb,#baffff);
