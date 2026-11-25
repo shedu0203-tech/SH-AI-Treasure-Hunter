@@ -192,6 +192,41 @@ button {
   transform: none !important;
   animation: none !important;
 }  
+#gameIntro {
+  overflow: hidden;
+}
+
+#gameIntro::before {
+  content: "";
+  position: absolute;
+  inset: -25px;
+  background: url("file_00000000dbc082099d276aefb3cb784a.png") center/cover no-repeat;
+  filter: blur(22px) brightness(0.45);
+}
+
+#gameIntro > div {
+  z-index: 1;
+  animation: introFade 1.5s ease-out;
+}
+
+@keyframes introFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+#gameIntro button {
+  animation: startGlow 2s infinite;
+  border-radius: 35px;
+}
+
+@keyframes startGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px #ffd70055;
+  }
+  50% {
+    box-shadow: 0 0 28px #ffd700cc;
+  }
+}
 </style>
 </head>
 <body><div id="gameIntro" style="
