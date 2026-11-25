@@ -114,6 +114,7 @@ controller.addEventListener('select', () => {
 
   if (hits.length > 0) {
     console.log('캐릭터 터치 성공');
+    activeCharacter.scale.setScalar(0.3);
     const speech = new SpeechSynthesisUtterance(
   '안녕! 나를 찾았구나. 이제 미션을 시작해 볼까?'
 );
