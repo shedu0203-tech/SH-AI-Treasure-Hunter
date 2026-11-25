@@ -76,11 +76,12 @@ scene.add(ring);
 
 let hitSource = null;
 let requested = false;
-
+let characterSpawned = false;
 const controller = renderer.xr.getController(0);
 
 controller.addEventListener('select', () => {
-  if (!ring.visible) return;
+  if (!ring.visible || characterSpawned) return;
+characterSpawned = true;
 
   const loader = new GLTFLoader();
 const position = new THREE.Vector3();
@@ -98,6 +99,7 @@ loader.load('./sh-character.glb', (gltf) => {
   }
 }, undefined, (error) => {
   console.error('캐릭터 로딩 오류:', error);
+  characterSpawned = false;
 });
 });
 
