@@ -246,12 +246,46 @@ startButton.addEventListener('beforexrselect', (event) => {
   event.preventDefault();
 });
 
-startButton.addEventListener('click', () => {
-  document.getElementById('missionBox').innerHTML = `
-    <h3 style="color:#ffd700;">🎯 MISSION START</h3>
-    <p>첫 번째 미션에 도전하세요!</p>
-    <p>팀원들과 함께 미션을 해결해 보세요.</p>
-  `;
+startButton.addEventListener('click', async () => {
+  try {
+    const response = await fetch('/api/config');
+    if (!response.ok) throw new Error('API 오류');
+    const data = await response.json();
+
+    const missionId = Number(
+      new URLSearchParams(location.search).get('mission') || 1
+    );
+
+    const mission = data.missions.find(
+      m => m.id === missionId
+    );
+
+    if (!mission) throw new Error('미션 없음');
+
+    const box = document.getElementById('missionBox');
+
+    box.innerHTML = `
+      <h3 style="color:#ffd700;">🎯 MISSION ${missionId}</h3>
+      <h2 id="missionTitle"></h2>
+      <p id="missionText"></p>
+    `;
+
+    document.getElementById('missionTitle').textContent = mission.title;
+    document.getElementById('missionText').textContent = mission.description;
+
+    const speech = new SpeechSynthesisUtterance(
+      mission.title + '. ' + mission.description
+    );
+
+    speech.lang = 'ko-KR';
+    speech.rate = 0.95;
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(speech);
+
+  } catch (error) {
+    alert('미션을 불러오지 못했습니다.');
+  }
 });
 </script>
 </body>
