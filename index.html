@@ -194,7 +194,42 @@ button {
 }  
 </style>
 </head>
-<body>
+<body><div id="gameIntro" style="
+position:fixed;
+inset:0;
+z-index:99999;
+background:#07182e;
+display:flex;
+align-items:center;
+justify-content:center;
+">
+<div style="
+position:relative;
+width:min(100vw,75dvh);
+">
+<img
+src="file_00000000dbc082099d276aefb3cb784a.png"
+alt="AI 트레저헌터"
+style="width:100%;display:block;"
+>
+<button type="button"
+aria-label="게임 시작"
+onclick="document.getElementById('gameIntro').remove()"
+style="
+position:absolute;
+top:74%;
+left:15%;
+width:70%;
+height:15%;
+background:transparent;
+border:0;
+box-shadow:none;
+padding:0;
+cursor:pointer;
+">
+</button>
+</div>
+</div>
  <div id="missionPopup" class="mission-popup" hidden>
   <div class="mission-popup-card">
   <img
