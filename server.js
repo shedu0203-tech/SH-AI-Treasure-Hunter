@@ -358,7 +358,8 @@ if (![
   'manifest.json',
   '✨ NEW MISSION_ 팀워크 암호 도전.png',
   'file_0000000066c4820993aec93e7bd3b30c.png',
-  'file_00000000dbc082099d276aefb3cb784a.png'
+  'file_00000000dbc082099d276aefb3cb784a.png',
+'file_000000001b3c8209947a524674a358aa.png'
 ].includes(name)) {
 
       return send(res, 404, {error: '없음'});
