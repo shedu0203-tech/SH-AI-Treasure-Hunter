@@ -79,7 +79,7 @@ let requested = false;
 let characterSpawned = false;
 const controller = renderer.xr.getController(0);
 
-controller.addEventListener('select', () => {
+  function spawnCharacter() {
   if (!ring.visible || characterSpawned) return;
 characterSpawned = true;
 
@@ -101,7 +101,7 @@ loader.load('./sh-character.glb', (gltf) => {
   console.error('캐릭터 로딩 오류:', error);
   characterSpawned = false;
 });
-});
+}
 
 scene.add(controller);
 const mixers = [];
@@ -141,6 +141,8 @@ mixers.forEach(mixer => mixer.update(delta));
 
         if (pose) {
           ring.matrix.fromArray(pose.transform.matrix);
+          spawnCharacter();
+ring.visible = false;
         }
       } else {
         ring.visible = false;
