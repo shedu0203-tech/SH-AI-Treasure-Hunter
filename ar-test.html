@@ -109,7 +109,34 @@ controller.addEventListener('select', () => {
 
     if (activeCharacter) {
     console.log('캐릭터 터치 성공');
-    mixers.forEach(mixer => mixer.timeScale = 0);
+    if (!activeCharacter.userData.idleLoading) {
+  activeCharacter.userData.idleLoading = true;
+  const loader = new GLTFLoader();
+
+  loader.load('./sh_idle.glb', (gltf) => {
+    const idle = gltf.scene;
+    idle.position.copy(activeCharacter.position);
+    idle.rotation.copy(activeCharacter.rotation);
+    idle.scale.copy(activeCharacter.scale);
+
+    mixers.forEach(m => m.stopAllAction());
+    mixers.length = 0;
+
+    scene.remove(activeCharacter);
+    scene.add(idle);
+    activeCharacter = idle;
+    idle.userData.idleLoading = true;
+
+    if (gltf.animations.length > 0) {
+      const mixer = new THREE.AnimationMixer(idle);
+      mixers.push(mixer);
+      mixer.clipAction(gltf.animations[0]).play();
+    }
+  }, undefined, (error) => {
+    activeCharacter.userData.idleLoading = false;
+    console.error(error);
+  });
+    }
     const speech = new SpeechSynthesisUtterance(
   '안녕! 나를 찾았구나. 이제 미션을 시작해 볼까?'
 );
