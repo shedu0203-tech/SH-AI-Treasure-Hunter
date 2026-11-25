@@ -314,7 +314,46 @@ body:has(#game:not(.hidden)) header {
   box-shadow: 0 0 20px #d4af3740;
   margin-bottom: 18px;
 }
-</style>
+/* 보물 다이아몬드 디자인 */
+#pieces {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0,1fr));
+  gap: 8px;
+  padding: 10px 0;
+}
+
+#pieces .piece {
+  width: 100%;
+  height: 65px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  clip-path: polygon(22% 0,78% 0,100% 32%,50% 100%,0 32%);
+  background: conic-gradient(from 45deg,#ffffff,#8295ac,#e8f2ff,#52657d,#ffffff);
+  color: #172b46;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 15px;
+}
+
+#pieces .piece.on {
+  background: conic-gradient(from 45deg,#baffff,#007bff,#48eaff,#0048bb,#baffff);
+  color: white;
+  text-shadow: 0 0 8px #00ffff;
+}
+
+#game #score {
+  margin: 8px auto;
+  padding: 8px 12px;
+  font-size: 26px;
+}
+
+#game .progress {
+  background: #263f55;
+  height: 12px;
+}</style>
 </head>
 <body><div id="gameIntro" style="
 position:fixed;
