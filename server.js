@@ -349,7 +349,7 @@ if (Array.isArray(b.gps) && b.gps.length === COUNT) {
 
     
 
-if (!['index.html', 'admin.html', 'ar-test.html', 'manifest.json', '✨ NEW MISSION_ 팀워크 암호 도전.png', 'file_0000000066c4820993aec93e7bd3b30c.png'].includes(name)) {
+if (!['index.html', 'admin.html', 'ar-test.html', 'sh-character.glb', 'manifest.json', '✨ NEW MISSION_ 팀워크 암호 도전.png', 'file_0000000066c4820993aec93e7bd3b30c.png'].includes(name)) {
 
       return send(res, 404, {error: '없음'});
     }
@@ -362,7 +362,9 @@ if (!['index.html', 'admin.html', 'ar-test.html', 'manifest.json', '✨ NEW MISS
   ? 'text/html; charset=utf-8'
   : name.endsWith('.png')
     ? 'image/png'
-    : 'application/json',
+    : name.endsWith('.glb')
+? 'model/gltf-binary'
+: 'application/json',
         'Cache-Control': 'no-store'
       });
       res.end(data);
