@@ -994,6 +994,7 @@ async function showMissionDistance(id) {
   try {
     if (config?.testMode === true) {
       notify('테스트 모드에서는 GPS 거리를 확인하지 않습니다.');
+      window.location.href = '/ar-test.html?mission=' + id;
       return;
     }
 
