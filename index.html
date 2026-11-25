@@ -488,7 +488,7 @@ function updateMyLocation(gps) {
   if (arrivedMissionId !== activeMissionId) {
     arrivedMissionId = activeMissionId;
     notify('미션 장소에 도착했습니다!');
-    openSHCamera();
+    window.location.href = '/ar-test.html?mission=' + activeMissionId;
   }
 }
     }
