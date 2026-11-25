@@ -1019,6 +1019,7 @@ async function showMissionDistance(id) {
 
     if (distance <= GPS_RADIUS) {
       notify('🏁 미션 장소에 도착했습니다!');
+      window.location.href = '/ar-test.html?mission=' + id;
     } else {
       notify('📍 미션 장소까지 약 ' + Math.round(distance) + 'm 남았습니다.');
     }
