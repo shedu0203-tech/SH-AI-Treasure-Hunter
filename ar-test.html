@@ -32,7 +32,24 @@ h2 {
 <p>AR 공간 인식 테스트</p>
 <p>AR 시작 후 바닥을 비춰주세요.</p>
 <p>초록색 원이 나타나면 화면을 터치하세요.</p>
-
+<div id="missionBox" style="
+  display:none;
+  position:fixed;
+  bottom:12%;
+  left:5%;
+  width:90%;
+  box-sizing:border-box;
+  background:white;
+  color:#101827;
+  padding:20px;
+  border-radius:20px;
+  z-index:9999;
+  box-shadow:0 4px 20px #0005;
+">
+  <h3>🎯 NEW MISSION</h3>
+  <p>안녕! 나를 찾았구나.</p>
+  <p>이제 미션을 시작해 볼까?</p>
+</div>
 <script type="module">
 import * as THREE from
 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
@@ -58,7 +75,9 @@ document.body.appendChild(renderer.domElement);
 
 document.body.appendChild(
   ARButton.createButton(renderer, {
-    requiredFeatures: ['hit-test']
+    requiredFeatures: ['hit-test'],
+optionalFeatures: ['dom-overlay'],
+domOverlay: { root: document.body }
   })
 );
 
@@ -142,6 +161,7 @@ controller.addEventListener('select', () => {
 );
 speech.lang = 'ko-KR';
 window.speechSynthesis.speak(speech);
+      document.getElementById('missionBox').style.display = 'block';
   }
 });
 scene.add(controller);
