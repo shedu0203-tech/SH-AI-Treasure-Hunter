@@ -278,7 +278,42 @@ body:has(#login:not(.hidden)) header {
   border-radius: 14px;
   box-shadow: 0 4px 18px #d4af3740;
 }
+/* 게임 메인 화면 디자인 */
+body:has(#game:not(.hidden)) {
+  background: radial-gradient(ellipse at top,#164866,#07182e 65%,#030c18);
+  color: #f5e6bd;
+  min-height: 100dvh;
+}
 
+body:has(#game:not(.hidden)) header {
+  background: linear-gradient(145deg,#081a30,#164866);
+  border: 2px solid #d4af37;
+  box-shadow: 0 0 20px #d4af3730;
+}
+
+#game .card {
+  background: linear-gradient(145deg,#10243a,#173b55);
+  border: 2px solid #d4af37;
+  border-radius: 20px;
+  color: #f5e6bd;
+  box-shadow: 0 4px 18px #00000066;
+}
+
+#game h2, #game h3 {
+  color: #f5d78b;
+}
+
+#game .small {
+  color: #dce5ef;
+}
+
+#characterWelcome {
+  border: 2px solid #d4af37;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 0 20px #d4af3740;
+  margin-bottom: 18px;
+}
 </style>
 </head>
 <body><div id="gameIntro" style="
