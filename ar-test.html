@@ -240,6 +240,19 @@ ring.visible = false;
 
   renderer.render(scene, camera);
 });
+  const startButton = document.getElementById('startMission');
+
+startButton.addEventListener('beforexrselect', (event) => {
+  event.preventDefault();
+});
+
+startButton.addEventListener('click', () => {
+  document.getElementById('missionBox').innerHTML = `
+    <h3 style="color:#ffd700;">🎯 MISSION START</h3>
+    <p>첫 번째 미션에 도전하세요!</p>
+    <p>팀원들과 함께 미션을 해결해 보세요.</p>
+  `;
+});
 </script>
 </body>
 </html>
