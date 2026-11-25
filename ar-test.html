@@ -28,10 +28,10 @@ h2 {
 </head>
 
 <body>
-<h2>SH AI 트레저헌터</h2>
-<p>AR 공간 인식 테스트</p>
-<p>AR 시작 후 바닥을 비춰주세요.</p>
-<p>초록색 원이 나타나면 화면을 터치하세요.</p>
+<div id="intro">
+  <h2>SH AI 트레저헌터</h2>
+  <p>AR 시작 후 바닥을 비춰주세요.</p>
+</div>
 <div id="missionBox" style="
   display:none;
   position:fixed;
@@ -70,7 +70,14 @@ const renderer = new THREE.WebGLRenderer({
 
 renderer.setSize(innerWidth, innerHeight);
 renderer.xr.enabled = true;
+renderer.xr.addEventListener('sessionstart', () => {
+  document.getElementById('intro').style.display = 'none';
+});
 
+renderer.xr.addEventListener('sessionend', () => {
+  document.getElementById('intro').style.display = 'block';
+  document.getElementById('missionBox').style.display = 'none';
+});
 document.body.appendChild(renderer.domElement);
 
 document.body.appendChild(
