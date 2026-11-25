@@ -316,10 +316,19 @@ body:has(#game:not(.hidden)) header {
 }
 /* 보물 다이아몬드 디자인 */
 #pieces {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0,1fr));
-  gap: 8px;
-  padding: 10px 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 6px;
+  background: linear-gradient(135deg,#fff0bf,#d9a34e);
+  border: 2px solid #b98232;
+  border-radius: 16px;
+}
+
+#pieces .piece {
+  flex: 0 0 calc((100% - 28px) / 8);
+  max-width: calc((100% - 28px) / 8);
 }
 
 #pieces .piece {
