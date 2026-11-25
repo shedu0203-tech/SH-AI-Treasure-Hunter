@@ -39,9 +39,9 @@ import * as THREE from
 
 import { ARButton } from
 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/webxr/ARButton.js';
-
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
 const scene = new THREE.Scene();
-
+scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 3));
 const camera = new THREE.PerspectiveCamera(
   70, innerWidth / innerHeight, 0.01, 20
 );
@@ -82,20 +82,31 @@ const controller = renderer.xr.getController(0);
 controller.addEventListener('select', () => {
   if (!ring.visible) return;
 
-  const box = new THREE.Mesh(
-    new THREE.BoxGeometry(0.3, 0.3, 0.3),
-    new THREE.MeshNormalMaterial()
-  );
+  const loader = new GLTFLoader();
+const position = new THREE.Vector3();
+position.setFromMatrixPosition(ring.matrix);
 
-  box.position.setFromMatrixPosition(ring.matrix);
-  box.position.y += 0.15;
-
-  scene.add(box);
+loader.load('./sh-character.glb', (gltf) => {
+  const character = gltf.scene;
+  character.position.copy(position);
+  character.scale.setScalar(0.5);
+  scene.add(character);
+  if (gltf.animations.length > 0) {
+  const mixer = new THREE.AnimationMixer(character);
+  mixers.push(mixer);
+  mixer.clipAction(gltf.animations[0]).play();
+  }
+}, undefined, (error) => {
+  console.error('캐릭터 로딩 오류:', error);
+});
 });
 
 scene.add(controller);
-
+const mixers = [];
+const clock = new THREE.Clock();
 renderer.setAnimationLoop((time, frame) => {
+  const delta = clock.getDelta();
+mixers.forEach(mixer => mixer.update(delta));
   if (frame) {
     const session = renderer.xr.getSession();
     const space = renderer.xr.getReferenceSpace();
