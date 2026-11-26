@@ -411,6 +411,45 @@ header h1 {
   text-shadow: 0 0 12px #dca53477;
 }
 
+/* 보석 컬렉션 게임형 디자인 */
+#game .pieces {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  padding: 18px 12px;
+  margin: 12px 0;
+  background: linear-gradient(145deg, #102c43, #071522);
+  border: 2px solid #c69a43;
+  border-radius: 18px;
+  box-shadow: 0 0 20px #d9a44133;
+}
+
+#game .pieces > * {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border-radius: 12px;
+  background: #213548;
+  filter: grayscale(1);
+  opacity: 0.65;
+}
+
+#game .pieces > .done,
+#game .pieces > .active,
+#game .pieces > .completed {
+  filter: grayscale(0);
+  opacity: 1;
+  background: #60481c;
+  box-shadow: 0 0 15px #ffcb54;
+  animation: gemGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes gemGlow {
+  from { box-shadow: 0 0 5px #d49a30; }
+  to { box-shadow: 0 0 22px #ffd75e; }
+}
+
 </style>
 </head>
 <body><div id="gameIntro" style="
