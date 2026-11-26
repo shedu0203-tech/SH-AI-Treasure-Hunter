@@ -626,45 +626,10 @@ mask: none !important;
           !important;
 }
 </style>
+<script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 </head>
-<body><div id="gameIntro" style="
-position:fixed;
-inset:0;
-z-index:99999;
-background:#07182e;
-display:flex;
-align-items:center;
-justify-content:center;
-">
-<div style="
-position:relative;
-width:min(100vw,75dvh);
-">
-<img
-src="file_00000000dbc082099d276aefb3cb784a.png"
-alt="AI 트레저헌터"
-style="width:100%;display:block;"
->
-<button type="button"
-aria-label="게임 시작"
-onclick="document.getElementById('gameIntro').remove()"
-style="
-position:absolute;
-top:0;
-left:0;
-width:100%;
-height:100%;
-z-index:10;
-background:transparent;
-border:0;
-box-shadow:none;
-padding:0;
-cursor:pointer;
-">
-</button>
-</div>
-</div>
- <div id="missionPopup" class="mission-popup" hidden>
+<body>
+<div id="missionPopup" class="mission-popup" hidden>
   <div class="mission-popup-card">
   <img
     src="file_0000000066c4820993aec93e7bd3b30c.png"
@@ -704,15 +669,6 @@ cursor:pointer;
 
 <section id="game" class="hidden">
 
-<div id="characterWelcome" style="position:relative;margin-bottom:16px;">
-  <img src="file_000000001b3c8209947a524674a358aa.png"
-       style="width:100%;display:block;border-radius:18px;">
-  <button type="button"
-    aria-label="탐험 시작하기"
-    onclick="document.getElementById('characterWelcome').style.display='none';"
-    style="position:absolute;inset:0;width:100%;height:100%;z-index:100;pointer-events:auto;background:transparent;border:0;cursor:pointer;">
-  </button>
-</div>
 <div class="card" id="gameHud" style="padding:12px;">
   <h2 id="teamTitle" style="text-align:center;background:linear-gradient(135deg,#ffe8a3,#c99536);color:#392300;padding:10px;border-radius:10px;">우리 팀</h2>
 
@@ -734,7 +690,7 @@ cursor:pointer;
   <h3 style="text-align:center;margin-top:20px;">💎 보물 조각 컬렉션</h3>
   <div id="pieces" class="pieces"></div>
 </div>
-<div id="gameGuide"><img src="file_000000001b3c8209947a524674a358aa.png" alt="SH 탐험 안내 캐릭터"><span>탐험대, 다음 미션에 도전하세요!</span></div>
+<div id="gameGuide"><model-viewer src="sh_idle.glb" alt="SH 탐험 안내 캐릭터" autoplay interaction-prompt="none" disable-zoom></model-viewer><span>탐험대! 다음 미션에 도전하세요.</span></div>
 <div id="finalApprovalArea" class="card hidden"></div>
 
 <div id="treasure" class="card hidden"
@@ -2090,7 +2046,7 @@ openMissionMap(id);
 body:has(#game:not(.hidden)){height:100dvh;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#164766,#07182e 72%,#030c18);}
 body:has(#game:not(.hidden)) header{height:48px;padding:6px!important;background:transparent;border:0;box-shadow:none;border-radius:0;}
 body:has(#game:not(.hidden)) header h1{font-size:21px!important;margin:0;}
-body:has(#game:not(.hidden)) header p,body:has(#game:not(.hidden)) footer,body:has(#game:not(.hidden)) > button{display:none!important;}
+body:has(#game:not(.hidden)) header p,body:has(#game:not(.hidden)) footer,body:has(#game:not(.hidden)) > button:not(#shMapBackBtn){display:none!important;}
 body:has(#game:not(.hidden)) main{height:calc(100dvh - 48px);padding:0 10px;}
 #game:not(.hidden){height:100%;display:flex;flex-direction:column;gap:3px;position:relative;}
 #game .card:not(#exploreMapCard){background:transparent;border:0;box-shadow:none;border-radius:0;margin:0;padding:0!important;}
@@ -2133,6 +2089,33 @@ function shHome(){ $('shMapBackBtn')?.click(); $('treasure').classList.add('hidd
 function shMap(){const card=$('missions').querySelector('.focused')||$('missions').firstElementChild;if(card)openMissionMap(Number(card.dataset.id));}
 function shGems(){notify('💎 보물 조각 '+(state?.done?.filter(Boolean).length||0)+' / '+TOTAL);$('pieces').animate([{opacity:.5},{opacity:1}],{duration:500});}
 function shFinal(){if(state?.finalApproved && state.done.filter(Boolean).length===TOTAL){$('treasure').classList.remove('hidden');}else if(state?.done?.filter(Boolean).length===TOTAL){requestFinalApproval();}else{notify('보물 상자를 열려면 10개 미션을 완료하세요.');}}
+</script>
+<style>
+body:has(#game:not(.hidden)){background:radial-gradient(ellipse at 50% 15%,#245d58 0%,transparent 45%),linear-gradient(155deg,#071e28,#102a39 48%,#050e1d);}
+body:has(#game:not(.hidden)) header{height:54px;padding:9px!important;}
+body:has(#game:not(.hidden)) header h1{font-size:24px!important;letter-spacing:1px;text-shadow:0 2px 0 #8c5419,0 0 18px #ffbd5566!important;}
+body:has(#game:not(.hidden)) main{height:calc(100dvh - 54px);padding:0 12px;}
+#game:not(.hidden){gap:5px;}
+#game #gameHud{border:1px solid #b88e4e!important;border-radius:16px!important;background:linear-gradient(145deg,#18394cdd,#071827ee)!important;padding:8px!important;}
+#game #teamTitle{font-size:16px;margin-bottom:5px;}
+#game #pieces .piece{height:clamp(22px,4.5dvh,35px)!important;min-height:0!important;}
+#gameGuide{flex:0 1 clamp(48px,13dvh,95px);gap:8px;}
+#gameGuide model-viewer{width:35%;height:100%;background:transparent;pointer-events:none;--poster-color:transparent;}
+#gameGuide span{max-width:62%;border:1px solid #b88e4e;background:#0b2437;border-radius:12px;padding:9px;font-size:12px;}
+#gameMissions>h2{letter-spacing:1px;font-size:14px;}
+#game #missions{padding:22px 14% 8px;scroll-padding-inline:14%;}
+#game #missions .mission{max-height:300px;border-radius:19px;background:radial-gradient(ellipse at 50% 25%,#225d72,#112c46 55%,#101a30);border-color:#987444;}
+#game #missions .mission.focused{border-color:#ffda82;box-shadow:0 0 15px #d7a13b88,inset 0 0 20px #d7a13b22;}
+#game #missions .mission-number{background:linear-gradient(#76552b,#382617);letter-spacing:1px;}
+#game #missions .mission-icon{font-size:clamp(24px,7dvh,55px);}
+#gameNav{border-top:1px solid #a58148;border-radius:12px 12px 0 0;background:linear-gradient(#163247,#071727);}
+body:has(#game:not(.hidden)) #notice:not(.hidden){top:auto;bottom:62px;left:12px;right:12px;border:1px solid #d4af37;z-index:10003;}
+#shMapBackBtn{display:block!important;}
+@media(max-height:560px){#gameGuide{flex-basis:40px;}#game #gameHud{padding:4px!important;}#game #missions .mission-icon{font-size:24px;}}
+</style>
+<script>
+const noticeObserver=new MutationObserver(()=>{const n=$('notice');clearTimeout(window.shNoticeTimer);if(!n.classList.contains('hidden'))window.shNoticeTimer=setTimeout(()=>n.classList.add('hidden'),3500);});
+noticeObserver.observe($('notice'),{attributes:true,attributeFilter:['class'],childList:true,characterData:true,subtree:true});
 </script>
 </body>
 </html>
