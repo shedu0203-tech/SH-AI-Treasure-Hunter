@@ -540,6 +540,20 @@ header h1 {
   animation: gemGlow 2s infinite alternate;
 }
 
+/* 보석 크기 최종 보정 */
+#game #pieces {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+}
+
+#game #pieces .piece {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 58px !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+
 </style>
 </head>
 <body><div id="gameIntro" style="
