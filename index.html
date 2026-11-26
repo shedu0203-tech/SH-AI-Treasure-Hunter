@@ -326,10 +326,7 @@ body:has(#game:not(.hidden)) header {
   border-radius: 16px;
 }
 
-#pieces .piece {
-  flex: 0 0 calc((100% - 28px) / 8);
-  max-width: calc((100% - 28px) / 8);
-}
+
 
 #pieces .piece {
   width: 100%;
@@ -340,7 +337,7 @@ body:has(#game:not(.hidden)) header {
   box-sizing: border-box;
   border: none;
   border-radius: 0;
-  clip-path: none;
+  clip-path: polygon(50% 0%, 85% 18%, 100% 40%, 50% 100%, 0% 40%, 15% 18%);
   background: conic-gradient(from 45deg,#ffffff,#8c9db5,#e8f2ff,#63758e,#ffffff,#aabbd0,#ffffff);
   color: #172b46;
   display: flex;
