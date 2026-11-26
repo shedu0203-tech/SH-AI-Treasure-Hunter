@@ -353,6 +353,7 @@ if (![
   'index.html',
   'admin.html',
   'ar-test.html',
+'atlasaudio-adventure-522409.mp3',
   'sh-character.glb',
   'sh_idle.glb',
   'manifest.json',
@@ -375,6 +376,8 @@ if (![
     ? 'image/png'
     : name.endsWith('.glb')
 ? 'model/gltf-binary'
+: name.endsWith('.mp3')
+? 'audio/mpeg'
 : 'application/json',
         'Cache-Control': 'no-store'
       });
