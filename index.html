@@ -15,7 +15,7 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
 *{box-sizing:border-box}
-8body{margin:0;background:#0b1530;color:#f8fafc;font-family:Arial,"Malgun Gothic",sans-serif}
+body{margin:0;background:#0b1530;color:#f8fafc;font-family:Arial,"Malgun Gothic",sans-serif}
 header{background:#123c69;color:white;padding:23px 16px;text-align:center}
 header h1{font-size:25px;margin:5px}
 header p{font-size:13px;margin:8px}
@@ -751,7 +751,7 @@ cursor:pointer;
 
   <div id="treasureResult" class="hidden">
     <h2>🎉 전설의 보물 발견!</h2>
-    <p>15개 미션을 모두 완료했습니다!</p>
+    <p>10개 미션을 모두 완료했습니다!</p>
     <h2>🏆 TREASURE HUNTER 성공!</h2>
     <p>관리자에게 최종 보물 확인을 요청하세요.</p>
   </div>
@@ -790,7 +790,7 @@ cursor:pointer;
 <div class="card">
 <h2>🧭 자유 탐색 미션</h2>
 <p class="small">원하는 장소부터 방문해 미션을 수행하세요. 현장 지도자의 안내를 따라 안전하게 이동하세요.</p>
-<div id="missions"></div>
+<div class="mission-deck"><div id="missions"></div><button class="deck-prev" type="button" aria-label="이전 미션" onclick="moveMission(-1)">❮</button><button class="deck-next" type="button" aria-label="다음 미션" onclick="moveMission(1)">❯</button></div><p id="missionPosition" style="text-align:center;color:#ffd76b"></p>
 </div>
 </section>
 </main>
@@ -1326,7 +1326,7 @@ function render(){
 
  $('pieces').innerHTML=done.map((v,i)=>
   '<div class="piece '+(v?'on':'')+'">'+
-  (v?'💎':i+1)+'</div>'
+  (i+1)+'</div>'
  ).join('');
   
 if (typeof window.shPreviousCount === 'number' &&
@@ -1372,54 +1372,50 @@ if (finalButton) {
         : '<button type="button" class="full" onclick="requestFinalApproval()">🏆 관리자 최종 승인 요청</button>';
 }
 
-const openedCard = document.querySelector('#missions .mission.open');
-if (openedCard) {
-  openedMissionId = Number(openedCard.dataset.id);
-}
- $('missions').innerHTML=missions.map((m,i)=>{
-  const id=Number(m.id)||i+1;
-  const completed=done[id-1];
-  const waiting=pending.includes(id);
-  const status=completed?'완료':waiting?'승인 대기':'도전 가능';
-  const type=esc(m.category||m.type||'미션');
-  const place=esc(m.place||'관리자 지정 장소');
-  const description=esc(m.description||'현장 안내에 따라 수행하세요.');
-
-  return '<div data-id="'+id+'" class="mission '+(completed?'done':waiting?'pending':'')+(String(openedMissionId)===String(id)?' open':'')+'">'+
-   '<span class="tag">'+type+'</span>'+
-   '<h3>'+id+'. '+esc(m.title)+'</h3>'+
-   '<p>📍 '+place+'</p>'+
-   '<p>'+description+'</p>'+
-   '<p class="small">상태: '+status+'</p>'+
-    
-'<p class="small">📍 GPS 위치 확인 후 미션에 도전하세요.</p>'+
-
-'<button type="button" class="full" onclick="openMissionMap("'+id+')">📍 미션 장소 거리 확인</button>'+
-
-   (completed?'<strong>✅ 미션 성공 · 보물 조각 획득</strong>':
-    waiting?'<strong>⏳ 관리자 승인을 기다리는 중</strong>':
-    '<button class="full" '+(!config.open?'disabled':'')+
-    ' onclick="submitMission('+id+')">정답 제출하기</button>')+
-   '</div>';
- }).join('');
-if (openedMissionId != null) {
-  const opened = Array.from(document.querySelectorAll('#missions .mission'))
-    .find(el => el.dataset.id === String(openedMissionId));
-  if (opened) opened.classList.add('open');
-}
+ const rail = $('missions');
+ const signature = JSON.stringify([missions,done,pending,config.open]);
+ if (rail.dataset.signature !== signature) {
+   const old = rail.scrollLeft;
+   rail.dataset.signature = signature;
+   const icons = {'협동':'🤝','관찰':'🔭','퀴즈':'💡','추리':'🔐','도전':'🎯','환경':'🌱','탐색':'🧭'};
+   rail.innerHTML = missions.slice(0,TOTAL).map((m,i)=>{
+     const id=Number(m.id)||i+1;
+     const completed=done[id-1], waiting=pending.includes(id);
+     const category=m.category||m.type||'미션';
+     return `<article class="mission ${completed?'done':waiting?'pending':''}" data-id="${id}">
+       <div class="mission-gem" aria-hidden="true"></div>
+       <div class="mission-number">MISSION ${String(id).padStart(2,'0')}</div>
+       <div class="mission-icon">${icons[category]||'🧭'}</div>
+       <h3>${esc(m.title||category)}</h3>
+       <p class="mission-desc">${esc(m.description||'현장 안내에 따라 수행하세요.')}</p>
+       ${completed?'<strong class="mission-status">✔ 완료</strong>':waiting?'<strong class="mission-status">승인 대기</strong>':`<button type="button" ${config.open?'':'disabled'} onclick="openMissionMap(${id})">▶ 미션 도전하기</button>`}
+     </article>`;
+   }).join('');
+   rail.scrollLeft=old;
+   requestAnimationFrame(updateMissionFocus);
+ }
  if(!config.open)notify('현재 행사가 종료되었거나 일시 중지되었습니다.',true);
 }
-document.getElementById('missions')
-  .addEventListener('click', function(event) {
-    if (event.target.closest('button')) return;
-
-    const card = event.target.closest('.mission');
-    if (!card) return;
-
-    openedMissionId = Number(card.dataset.id);
-openMissionPopup(openedMissionId);
-
-  });
+function updateMissionFocus(){
+ const rail=$('missions');
+ const center=rail.getBoundingClientRect().left+rail.clientWidth/2;
+ let nearest=null, distance=Infinity;
+ rail.querySelectorAll('.mission').forEach(card=>{
+   const r=card.getBoundingClientRect();
+   const d=Math.abs(r.left+r.width/2-center);
+   if(d<distance){distance=d;nearest=card;}
+ });
+ rail.querySelectorAll('.mission').forEach(card=>card.classList.toggle('focused',card===nearest));
+ $('missionPosition').textContent=nearest?nearest.dataset.id+' / '+rail.children.length:'';
+}
+$('missions').addEventListener('scroll',updateMissionFocus,{passive:true});
+window.addEventListener('resize',updateMissionFocus);
+function moveMission(direction){
+ const rail=$('missions');
+ const cards=Array.from(rail.children);
+ const index=cards.findIndex(c=>c.classList.contains('focused'));
+ cards[Math.max(0,Math.min(cards.length-1,index+direction))]?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
 
 function openMissionMap(id) {
   const mapCard = $('exploreMapCard');
@@ -1429,6 +1425,7 @@ function openMissionMap(id) {
 }
   
 activeMissionId = Number(id);
+ arrivedMissionId = null;
 
 if (!document.getElementById('shMapBackBtn')) {
   const backBtn = document.createElement('button');
@@ -1452,6 +1449,9 @@ if (!document.getElementById('shMapBackBtn')) {
 
   backBtn.onclick = () => {
     mapCard.classList.add('hidden');
+    activeMissionId = null;
+    arrivedMissionId = null;
+    stopLiveGPS();
     backBtn.remove();
   };
 
@@ -1565,12 +1565,12 @@ async function requestFinalApproval() {
   if (busy) return;
 
   if (!state || !Array.isArray(state.done) ||
-      state.done.filter(Boolean).length !== 15) {
-    notify('15개 미션을 모두 완료해야 합니다.', true);
+      state.done.filter(Boolean).length !== TOTAL) {
+    notify('10개 미션을 모두 완료해야 합니다.', true);
     return;
   }
 
-  if (!confirm('15개 미션을 완료했습니다. 관리자에게 최종 승인을 요청할까요?')) return;
+  if (!confirm('10개 미션을 완료했습니다. 관리자에게 최종 승인을 요청할까요?')) return;
 
   busy = true;
   try {
@@ -1610,7 +1610,7 @@ async function requestFinalApproval() {
   if (busy) return;
 
   if (!state || state.done.filter(Boolean).length !== TOTAL) {
-    notify('15개 미션을 모두 완료해주세요.', true);
+    notify('10개 미션을 모두 완료해주세요.', true);
     return;
   }
 
@@ -1675,137 +1675,6 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 
 </script>
   
-<style>
-/* SH AI 트레저헌터 미션 카드 */
-.mission {
-  cursor: pointer;
-  transition: box-shadow 0.2s;
-}
-
-.mission.collapsed {
-  max-height: none;
-  overflow: visible;
-}
-.mission.collapsed > :not(h3) {
-  display: none;
-}
-.mission h3 {
-  cursor: pointer;
-  margin: 0;
-  padding: 12px 0;
-}
-.mission h3::after {
-  content: " ▲";
-  float: right;
-}
-.mission.collapsed h3::after {
-  content: " ▼";
-}
-
-.mission.collapsed button {
-  display: none;
-}
-.mission:active {
-  box-shadow: 0 3px 12px #0002;
-}
-</style>
-<script>
-document.addEventListener('click', function(e) {
-  if (e.target.closest('button, input, select, textarea')) return;
-  const card = e.target.closest('.mission');
-  if (!card) return;
-  card.classList.toggle('collapsed');
-});
-</script>
-
-<script>
-(function () {
-  function collapseMissions() {
-    document.querySelectorAll('.mission').forEach(function(card) {
-      if (!card.dataset.initialized) {
-        card.classList.add('collapsed');
-        card.dataset.initialized = 'true';
-      }
-    });
-  }
-
-  collapseMissions();
-
-  const observer = new MutationObserver(collapseMissions);
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
-})();
-</script>
-
-<style>
-/* SH AI 트레저헌터 미션 카드 간격 */
-.mission.collapsed {
-  padding: 12px 16px;
-  margin-bottom: 8px;
-  border-radius: 12px;
-}
-.mission.collapsed h3 {
-  padding: 6px 0;
-  margin: 0;
-  font-size: 17px;
-  line-height: 1.5;
-}
-</style>
-
-<style>
-/* SH AI 미션 유형별 색상 */
-.mission {
-  border-left: 5px solid #64748b;
-}
-.mission[data-type="협동"] {
-  border-left-color: #2563eb;
-}
-.mission[data-type="관찰"] {
-  border-left-color: #16a34a;
-}
-.mission[data-type="퀴즈"] {
-  border-left-color: #9333ea;
-}
-.mission[data-type="추리"] {
-  border-left-color: #f97316;
-}
-.mission[data-type="도전"] {
-  border-left-color: #dc2626;
-}
-</style>
-<script>
-(function() {
-  const colors = {
-    '협동':'#2563eb',
-    '관찰':'#16a34a',
-    '퀴즈':'#9333ea',
-    '추리':'#f97316',
-    '도전':'#dc2626'
-  };
-
-  function colorMissions() {
-    document.querySelectorAll('.mission').forEach(card => {
-      const type = Object.keys(colors).find(t =>
-        Array.from(card.querySelectorAll('*'))
-          .some(el => el.children.length === 0 &&
-            el.textContent.trim() === t)
-      );
-      if (type) {
-        card.style.borderLeft = '5px solid ' + colors[type];
-      }
-    });
-  }
-
-  colorMissions();
-  new MutationObserver(colorMissions).observe(
-    document.body,
-    {childList:true,subtree:true}
-  );
-})();
-</script>
-
 <style>
 /* SH AI 트레저헌터 게임 상단 디자인 */
 header {
@@ -2151,7 +2020,7 @@ function openTreasure() {
 async function showMissionDistance(missionId) {
   const id = Number(missionId);
 
-  if (!Number.isInteger(id) || id < 1 || id > 15) {
+  if (!Number.isInteger(id) || id < 1 || id > TOTAL) {
     alert('미션 번호를 확인해주세요.');
     return;
   }
@@ -2194,5 +2063,25 @@ openMissionMap(id);
 }
 </script>
 
+<style>
+#game .mission-deck{position:relative;margin:0 -12px}
+#game #missions{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:32px 16% 22px;scroll-padding-inline:16%;scrollbar-width:none;align-items:center;}
+#game #missions::-webkit-scrollbar{display:none}
+#game #missions .mission{position:relative;flex:0 0 100%;min-width:0;height:330px;margin:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding:28px 12px 14px;border:3px solid #b78b45;border-radius:22px;background:radial-gradient(ellipse at 50% 38%,#1764a4,#142b65 55%,#35194f);box-shadow:0 5px 12px #0009;scroll-snap-align:center;transform:scale(.87);transition:transform .25s,border-color .25s,box-shadow .25s;cursor:default;}
+#game #missions .mission.focused{transform:scale(1);border-color:#ffe18a;box-shadow:0 0 18px #ffb52d, inset 0 0 10px #ffbd4055;}
+#game #missions .mission h3{font-size:20px;color:#fff;margin:5px 0;padding:0;line-height:1.2;text-shadow:0 2px 4px #000;}
+#game #missions .mission h3::after{content:none}
+#game #missions .mission-number{background:linear-gradient(#8734a4,#4b176b);border:2px solid #d8a455;border-radius:12px;padding:6px 12px;color:#fff;font-weight:900;white-space:nowrap;}
+#game #missions .mission-icon{font-size:62px;line-height:1.2;margin:12px 0 4px;filter:drop-shadow(0 4px 5px #0008)}
+#game #missions .mission-desc{font-size:12px;color:#e6edff;line-height:1.4;margin:6px 0;overflow:auto;flex:1;min-height:0;width:100%;}
+#game #missions .mission button{width:100%;min-height:42px;padding:8px 3px;background:linear-gradient(#fff09a,#ffb000);border:2px solid #ffe9a0;color:#372100;font-size:14px;flex-shrink:0;}
+#game #missions .mission button:disabled{opacity:.45}
+#game #missions .mission-status{background:#287c39;color:white;border-radius:20px;padding:8px 18px;margin-top:auto;}
+#game #missions .mission-gem{position:absolute;top:-26px;left:50%;transform:translateX(-50%);width:53px;height:44px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'%3E%3Cpath fill='%23aab5c5' stroke='white' stroke-width='2' d='M20 5H80L98 28L50 78L2 28Z'/%3E%3Cpath fill='%23eef4ff' d='M20 5H80L65 28H35Z M35 28H65L50 78Z'/%3E%3Cpath fill='%23677890' d='M2 28H35L50 78Z'/%3E%3C/svg%3E") center/contain no-repeat;filter:grayscale(1);}
+#game #missions .done .mission-gem{filter:sepia(1) saturate(8) brightness(1.35) drop-shadow(0 0 7px gold);}
+#game .deck-prev,#game .deck-next{position:absolute;top:48%;z-index:2;padding:8px;background:#132340dd;color:#ffe08a;border:1px solid #d9a441;font-size:19px;}
+#game .deck-prev{left:0}#game .deck-next{right:0}
+@media(prefers-reduced-motion:reduce){#game #missions .mission{transition:none}}
+</style>
 </body>
 </html>
