@@ -506,6 +506,40 @@ header h1 {
   animation: gemGlow 2s infinite alternate;
 }
 
+/* 보석 10개 표시 디자인 수정 */
+#game #pieces {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  padding: 15px;
+}
+
+#game #pieces .piece {
+  width: 100%;
+  min-width: 0;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 25px;
+  border-radius: 12px;
+  background: #26394c;
+  border: 1px solid #627181;
+  color: #c0c6cf;
+  filter: grayscale(1);
+  opacity: 0.8;
+}
+
+#game #pieces .piece.on {
+  background: linear-gradient(145deg, #77511a, #30210c);
+  border: 2px solid #ffd76a;
+  color: #ffe28b;
+  filter: grayscale(0);
+  opacity: 1;
+  box-shadow: 0 0 18px #ffcf55;
+  animation: gemGlow 2s infinite alternate;
+}
+
 </style>
 </head>
 <body><div id="gameIntro" style="
