@@ -594,7 +594,37 @@ mask: none !important;
   0%, 100% { opacity: 1; }
   50% { opacity: 0.8; }
 }
+/* 다이아몬드 최종 디자인 보정 */
+#game #pieces {
+  row-gap: 5px !important;
+}
 
+#game #pieces .piece {
+  height: 50px !important;
+  min-height: 50px !important;
+  opacity: 1 !important;
+  filter: none !important;
+  color: #ffffff !important;
+  text-shadow: 0 2px 3px #000,
+               0 0 4px #000 !important;
+}
+
+#game #pieces .piece::before {
+  inset: 0 !important;
+  transform: scale(1.15);
+}
+
+#game #pieces .piece:not(.on)::before {
+  filter: brightness(1.2)
+          contrast(1.15) !important;
+}
+
+#game #pieces .piece.on::before {
+  filter: sepia(1) saturate(7)
+          brightness(1.3)
+          drop-shadow(0 0 7px #ffd700)
+          !important;
+}
 </style>
 </head>
 <body><div id="gameIntro" style="
