@@ -578,34 +578,38 @@ min-height: 58px !important;
   opacity: 1 !important;
   box-shadow: 0 0 18px #ffd700 !important;
 }
-
-/* RPG 입체 다이아몬드 보석 */
+/* SH 다이아몬드 보석 */
 #game #pieces .piece {
-  clip-path: polygon(
-    50% 0%, 85% 18%, 100% 40%,
-    50% 100%, 0% 40%, 15% 18%
-  ) !important;
+  position: relative;
+  isolation: isolate;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   border-radius: 0 !important;
-  padding: 0 !important;
-  text-shadow: 0 1px 3px #555;
+  color: #ffffff !important;
+  font-weight: 900;
+  text-shadow: 0 2px 3px #000;
+  aspect-ratio: 1.25;
 }
 
-#game #pieces .piece:not(.on) {
-  background: conic-gradient(
-    from 45deg,
-    #ffffff, #8e9eb8, #e5f2ff,
-    #586b86, #ffffff, #a8bad2,
-    #ffffff
-  ) !important;
+#game #pieces .piece::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  z-index: -1;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'%3E%3Cpath fill='%23b7c9df' stroke='%23ffffff' d='M20 5H80L98 28L50 78L2 28Z'/%3E%3Cpath fill='%23ffffff' d='M20 5L35 28H2Z M20 5H80L65 28H35Z'/%3E%3Cpath fill='%237486a1' d='M2 28H35L50 78Z'/%3E%3Cpath fill='%23eaf5ff' d='M35 28H65L50 78Z'/%3E%3Cpath fill='%2395abc5' d='M65 28H98L50 78Z M80 5L98 28H65Z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
-#game #pieces .piece.on {
-  background: conic-gradient(
-    from 45deg,
-    #fff9b0, #d88b00, #fff0a0,
-    #a65a00, #ffe76b, #ffc400,
-    #fff9b0
-  ) !important;
+#game #pieces .piece.on::before {
+  filter: sepia(1) saturate(7)
+  brightness(1.15)
+  drop-shadow(0 0 5px #ffcc00);
+  animation: diamondGlow 2s infinite;
+}
+
+@keyframes diamondGlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
 }
 
 </style>
