@@ -579,6 +579,35 @@ min-height: 58px !important;
   box-shadow: 0 0 18px #ffd700 !important;
 }
 
+/* RPG 입체 다이아몬드 보석 */
+#game #pieces .piece {
+  clip-path: polygon(
+    50% 0%, 85% 18%, 100% 40%,
+    50% 100%, 0% 40%, 15% 18%
+  ) !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  text-shadow: 0 1px 3px #555;
+}
+
+#game #pieces .piece:not(.on) {
+  background: conic-gradient(
+    from 45deg,
+    #ffffff, #8e9eb8, #e5f2ff,
+    #586b86, #ffffff, #a8bad2,
+    #ffffff
+  ) !important;
+}
+
+#game #pieces .piece.on {
+  background: conic-gradient(
+    from 45deg,
+    #fff9b0, #d88b00, #fff0a0,
+    #a65a00, #ffe76b, #ffc400,
+    #fff9b0
+  ) !important;
+}
+
 </style>
 </head>
 <body><div id="gameIntro" style="
