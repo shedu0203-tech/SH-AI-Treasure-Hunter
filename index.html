@@ -367,7 +367,51 @@ body:has(#game:not(.hidden)) header {
 #game .progress {
   background: #263f55;
   height: 12px;
-}</style>
+}
+
+/* SH 트레저헌터 게임형 메인 디자인 */
+body {
+  background: radial-gradient(
+    ellipse at top,
+    #173b57 0%,
+    #071626 65%,
+    #030b15 100%
+  );
+  color: #fff5db;
+}
+
+header {
+  background: linear-gradient(
+    180deg, #173650, #0b1b2d
+  );
+  border-bottom: 2px solid #c69a43;
+  text-align: center;
+  box-shadow: 0 4px 24px #d9a44133;
+}
+
+header h1 {
+  color: #ffdb83;
+  text-shadow: 0 0 14px #e7a52d88;
+  letter-spacing: 1px;
+}
+
+#game {
+  background: transparent;
+}
+
+#game .progress {
+  background: #142b40;
+  border: 1px solid #bd9143;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+#game #score {
+  color: #ffd879;
+  text-shadow: 0 0 12px #dca53477;
+}
+
+</style>
 </head>
 <body><div id="gameIntro" style="
 position:fixed;
