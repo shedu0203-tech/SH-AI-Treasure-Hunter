@@ -712,7 +712,7 @@ cursor:pointer;
     style="position:absolute;bottom:5%;left:30%;width:40%;height:15%;background:transparent;border:0;cursor:pointer;">
   </button>
 </div>
-<div class="card" style="padding:12px;">
+<div class="card" id="gameHud" style="padding:12px;">
   <h2 id="teamTitle" style="text-align:center;background:linear-gradient(135deg,#ffe8a3,#c99536);color:#392300;padding:10px;border-radius:10px;">우리 팀</h2>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:center;">
@@ -733,6 +733,7 @@ cursor:pointer;
   <h3 style="text-align:center;margin-top:20px;">💎 보물 조각 컬렉션</h3>
   <div id="pieces" class="pieces"></div>
 </div>
+<div id="gameGuide"><img src="file_000000001b3c8209947a524674a358aa.png" alt="SH 탐험 안내 캐릭터"><span>탐험대, 다음 미션에 도전하세요!</span></div>
 <div id="finalApprovalArea" class="card hidden"></div>
 
 <div id="treasure" class="card hidden"
@@ -787,11 +788,12 @@ cursor:pointer;
   </p>
 </div>
 
-<div class="card">
+<div class="card" id="gameMissions">
 <h2>🧭 자유 탐색 미션</h2>
 <p class="small">원하는 장소부터 방문해 미션을 수행하세요. 현장 지도자의 안내를 따라 안전하게 이동하세요.</p>
 <div class="mission-deck"><div id="missions"></div><button class="deck-prev" type="button" aria-label="이전 미션" onclick="moveMission(-1)">❮</button><button class="deck-next" type="button" aria-label="다음 미션" onclick="moveMission(1)">❯</button></div><p id="missionPosition" style="text-align:center;color:#ffd76b"></p>
 </div>
+<nav id="gameNav" aria-label="게임 메뉴"><button onclick="shHome()">⌂<small>홈</small></button><button onclick="shMap()">🗺️<small>지도</small></button><button onclick="shGems()">💎<small>보석</small></button><button onclick="shFinal()">🏆<small>보물</small></button><button onclick="checkGPS()">⚙<small>GPS</small></button></nav>
 </section>
 </main>
 
@@ -2083,5 +2085,53 @@ openMissionMap(id);
 #game .deck-prev{left:0}#game .deck-next{right:0}
 @media(prefers-reduced-motion:reduce){#game #missions .mission{transition:none}}
 </style>
+<style>
+body:has(#game:not(.hidden)){height:100dvh;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#164766,#07182e 72%,#030c18);}
+body:has(#game:not(.hidden)) header{height:48px;padding:6px!important;background:transparent;border:0;box-shadow:none;border-radius:0;}
+body:has(#game:not(.hidden)) header h1{font-size:21px!important;margin:0;}
+body:has(#game:not(.hidden)) header p,body:has(#game:not(.hidden)) footer,body:has(#game:not(.hidden)) > button{display:none!important;}
+body:has(#game:not(.hidden)) main{height:calc(100dvh - 48px);padding:0 10px;}
+#game:not(.hidden){height:100%;display:flex;flex-direction:column;gap:3px;position:relative;}
+#game .card:not(#exploreMapCard){background:transparent;border:0;box-shadow:none;border-radius:0;margin:0;padding:0!important;}
+#gameHud{flex:none;}
+#game #teamTitle{background:none!important;color:#ffe19a!important;padding:0!important;margin:0 0 4px;font-size:15px;}
+#gameHud > div:not(#pieces) > div{border:0!important;background:none!important;padding:2px!important;font-size:11px;}
+#game #score{font-size:19px;margin:2px;padding:0;background:none;}
+#progressText{margin:3px 0;font-size:11px;}
+#gameHud h3{font-size:12px;margin:4px 0!important;}
+#game #pieces{grid-template-columns:repeat(10,minmax(0,1fr))!important;gap:2px!important;padding:0!important;margin:0!important;background:none;border:0;box-shadow:none;}
+#game #pieces .piece{height:32px!important;min-height:32px!important;font-size:12px;}
+#game #pieces .piece::before{transform:none;}
+#characterWelcome{position:fixed!important;inset:0;z-index:10002;background:#07182e;display:flex;align-items:center;justify-content:center;border:0;box-shadow:none;margin:0!important;border-radius:0;}
+#characterWelcome img{max-height:100dvh;object-fit:contain;}
+#gameGuide{display:flex;align-items:center;justify-content:center;gap:8px;min-height:0;flex:0 1 100px;overflow:hidden;}
+#gameGuide img{height:100%;max-width:48%;object-fit:contain;mix-blend-mode:normal;border-radius:8px;}
+#gameGuide span{font-size:12px;color:#ffe5a6;max-width:48%;}
+#gameMissions{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;}
+#gameMissions>h2{font-size:15px;text-align:center;margin:0;}
+#gameMissions>p.small{display:none;}
+#game .mission-deck{min-height:0;flex:1;margin:0;display:flex;align-items:center;}
+#game #missions{width:100%;height:100%;padding:22px 15% 10px;scroll-padding-inline:15%;}
+#game #missions .mission{height:100%;max-height:330px;min-height:0;padding:15px 10px 9px;}
+#game #missions .mission-icon{font-size:clamp(24px,6dvh,52px);margin:3px 0;}
+#game #missions .mission h3{font-size:17px;}
+#game #missions .mission h3::before{content:none;}
+#game #missions .mission-number{font-size:12px;padding:4px 8px;}
+#game #missions .mission-gem{width:38px;height:30px;top:-18px;}
+#missionPosition{margin:0 0 3px;font-size:12px;}
+#gameNav{display:flex;flex:none;justify-content:space-around;padding:4px 0 max(5px,env(safe-area-inset-bottom));background:#07182e99;}
+#gameNav button{background:none;color:#ffdb83;padding:4px 8px;font-size:20px;min-width:44px;}
+#gameNav small{display:block;font-size:10px;}
+body:has(#game:not(.hidden)) #notice:not(.hidden){position:fixed;top:50px;left:10px;right:10px;z-index:10003;background:#102b46;color:white;padding:8px;margin:0;font-size:12px;pointer-events:none;}
+#game #treasure:not(.hidden){position:fixed;inset:10% 5%;z-index:10004;background:#102b46;border-radius:20px;overflow:auto;padding:20px!important;}
+#game #finalApprovalArea:not(.hidden){font-size:12px;text-align:center;}
+@media(max-height:600px){#gameGuide{flex-basis:45px;}#game #missions .mission-icon{font-size:25px;}#game #missions .mission-desc{font-size:11px;}}
+</style>
+<script>
+function shHome(){ $('shMapBackBtn')?.click(); $('treasure').classList.add('hidden'); }
+function shMap(){const card=$('missions').querySelector('.focused')||$('missions').firstElementChild;if(card)openMissionMap(Number(card.dataset.id));}
+function shGems(){notify('💎 보물 조각 '+(state?.done?.filter(Boolean).length||0)+' / '+TOTAL);$('pieces').animate([{opacity:.5},{opacity:1}],{duration:500});}
+function shFinal(){if(state?.finalApproved && state.done.filter(Boolean).length===TOTAL){$('treasure').classList.remove('hidden');}else if(state?.done?.filter(Boolean).length===TOTAL){requestFinalApproval();}else{notify('보물 상자를 열려면 10개 미션을 완료하세요.');}}
+</script>
 </body>
 </html>
