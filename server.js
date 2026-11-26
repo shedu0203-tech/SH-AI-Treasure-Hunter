@@ -353,7 +353,7 @@ if (![
   'index.html',
   'admin.html',
   'ar-test.html',
-'atlasaudio-adventure-522409.mp3',
+'atlasaudio-adventure-522409(3).mp3',
   'sh-character.glb',
   'sh_idle.glb',
   'manifest.json',
