@@ -663,7 +663,7 @@ mask: none !important;
 <p>팀 번호와 팀 이름을 입력하세요.</p>
 <input id="teamNumber" type="number" min="1" max="40" placeholder="팀 번호 (1~40)">
 <input id="teamName" maxlength="25" placeholder="팀 이름">
-<button class="full" onclick="join()">탐험 시작하기</button>
+<button class="full" onclick="shJoinWithMusic()">탐험 시작하기</button>
 <p class="small">팀당 휴대폰 한 대를 사용합니다.</p>
 </section>
 
@@ -2146,5 +2146,31 @@ body:has(#game:not(.hidden)) main{height:auto!important;flex:1;min-height:0;widt
 #gameGuide span::before,#gameGuide span::after{content:'';position:absolute;top:-3px;bottom:-3px;width:12px;border-radius:5px;background:linear-gradient(90deg,#8b501b,#ffe6a0,#b4772c);box-shadow:0 2px 4px #0008;}#gameGuide span::before{left:-5px}#gameGuide span::after{right:-5px}
 #game .deck-prev,#game .deck-next{font-size:clamp(20px,5vw,32px);padding:8px 5px;min-width:30px;}
 </style>
+<style>
+#shOpening{position:fixed;inset:0;z-index:30000;display:grid;place-items:center;background:radial-gradient(ellipse,#163e39,#030b12 75%);padding:18px;overflow:auto;}
+#shOpening[hidden]{display:none!important}#shOpening.shClosing{opacity:0;transition:opacity .65s;pointer-events:none}
+.shOpeningCard{width:min(100%,440px);max-height:95dvh;overflow:auto;text-align:center;padding:14px;border:2px solid #f5cf75;border-radius:24px;background:linear-gradient(145deg,#183a37,#071923);box-shadow:0 0 0 4px #76501d,0 0 35px #e8b54a66;animation:shReveal 2.5s ease both;}
+.shOpeningCard img{display:block;width:100%;max-height:65dvh;object-fit:contain;border-radius:14px;}
+.shOpeningCard h2{color:#ffe4a0;letter-spacing:2px;margin:12px 0 6px;font-size:22px}.shOpeningCard p{color:#e5d5aa;margin:6px 0 15px}
+#shStart{width:90%;background:linear-gradient(#fff2ac,#e7b13f 50%,#b57a1d);color:#352008;border:2px solid #fff0a0;border-radius:28px;box-shadow:0 0 18px #f8c65a88;animation:shReveal .7s 2s both;font-size:19px;}
+@keyframes shReveal{from{opacity:0;transform:scale(.94);filter:brightness(.35)}to{opacity:1;transform:scale(1);filter:brightness(1)}}
+#shSound{position:fixed;right:10px;top:10px;z-index:10005;border:1px solid #d4af37;background:#102a30e8;color:#ffe6a0;border-radius:50%;width:40px;height:40px;padding:0;font-size:18px}#shSound[hidden]{display:none!important}
+body:has(#game:not(.hidden)){background:radial-gradient(ellipse at top,#245e50,#03232b 65%,#03161c)!important}
+#game #missions .mission{height:80%;max-height:285px;background:radial-gradient(ellipse at 50% 35%,#125b88,#04243b 65%,#031a26)!important}
+#game #missions .mission.focused{box-shadow:0 0 0 2px #a46b18,0 0 15px #ffbd36,inset 0 0 0 2px #9c611b,inset 0 0 22px #000}
+#shDots{display:flex;justify-content:center;gap:5px;margin:2px 0 5px}#shDots span{width:7px;height:7px;border-radius:50%;background:#655a40;border:1px solid #aa925b}#shDots span.active{background:#ffe083;box-shadow:0 0 6px gold}
+@media(prefers-reduced-motion:reduce){.shOpeningCard,#shStart{animation:none}}
+</style>
+<div id="shOpening" role="dialog" aria-modal="true" aria-label="게임 시작"><div class="shOpeningCard"><img id="shOpeningArt" src="file_00000000dbc082099d276aefb3cb784a.png" alt="SH AI 트레저헌터" onerror="this.onerror=null;this.src=document.getElementById('shHero').src"><h2>SH AI TREASURE HUNTER</h2><p>전설의 보물을 찾아라!</p><button id="shStart" type="button" onclick="shEnter()">▶ 게임 시작</button></div></div>
+<audio id="shMusic" src="atlasaudio-adventure-522409.mp3" loop preload="none"></audio><button id="shSound" hidden type="button" aria-label="배경음악 음소거" onclick="shToggleSound()">♫</button>
+<script>
+const shAudio=$('shMusic');let shFadeTimer;
+function shPlayMusic(){clearInterval(shFadeTimer);shAudio.volume=0;shAudio.play().then(()=>{let v=0;shFadeTimer=setInterval(()=>{v=Math.min(.35,v+.035);shAudio.volume=v;if(v>=.35)clearInterval(shFadeTimer)},200)}).catch(()=>{});$('shSound').hidden=false;}
+function shToggleSound(){if(shAudio.paused){shPlayMusic();shAudio.muted=false}else{shAudio.muted=!shAudio.muted}$('shSound').textContent=shAudio.muted?'🔇':'♫';$('shSound').setAttribute('aria-label',shAudio.muted?'배경음악 켜기':'배경음악 음소거');}
+function shEnter(){sessionStorage.setItem('shOpeningSeen','1');const o=$('shOpening');o.classList.add('shClosing');setTimeout(()=>{o.hidden=true;document.querySelector('main').inert=false;document.querySelector('header').inert=false},650);if(state&&!$('game').classList.contains('hidden'))shPlayMusic();}
+async function shJoinWithMusic(){if(busy)return;const n=Number($('teamNumber').value);if(!Number.isInteger(n)||n<1||n>40||!$('teamName').value.trim()){await join();return}shPlayMusic();await join();if($('game').classList.contains('hidden')){clearInterval(shFadeTimer);shAudio.pause();$('shSound').hidden=true;}}
+if(document.referrer.includes('/ar-test.html')&&sessionStorage.getItem('shOpeningSeen')){$('shOpening').hidden=true;$('shSound').hidden=false;}else{document.querySelector('main').inert=true;document.querySelector('header').inert=true;}
+const dots=document.createElement('div');dots.id='shDots';$('missionPosition').after(dots);function shUpdateDots(){const cards=Array.from($('missions').children);dots.replaceChildren(...cards.map(c=>{const d=document.createElement('span');d.className=c.classList.contains('focused')?'active':'';return d;}));}new MutationObserver(shUpdateDots).observe($('missions'),{childList:true,subtree:true,attributes:true,attributeFilter:['class']});shUpdateDots();
+</script>
 </body>
 </html>
