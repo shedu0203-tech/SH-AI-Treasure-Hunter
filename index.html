@@ -2162,7 +2162,7 @@ body:has(#game:not(.hidden)){background:radial-gradient(ellipse at top,#245e50,#
 @media(prefers-reduced-motion:reduce){.shOpeningCard,#shStart{animation:none}}
 </style>
 <div id="shOpening" role="dialog" aria-modal="true" aria-label="게임 시작"><div class="shOpeningCard"><img id="shOpeningArt" src="file_00000000dbc082099d276aefb3cb784a.png" alt="SH AI 트레저헌터" onerror="this.onerror=null;this.src=document.getElementById('shHero').src"><h2>SH AI TREASURE HUNTER</h2><p>전설의 보물을 찾아라!</p><button id="shStart" type="button" onclick="shEnter()">▶ 게임 시작</button></div></div>
-<audio id="shMusic" src="atlasaudio-adventure-522409.mp3" loop preload="none"></audio><button id="shSound" hidden type="button" aria-label="배경음악 음소거" onclick="shToggleSound()">♫</button>
+<audio id="shMusic" src="atlasaudio-adventure-522409(3).mp3" loop preload="none"></audio><button id="shSound" hidden type="button" aria-label="배경음악 음소거" onclick="shToggleSound()">♫</button>
 <script>
 const shAudio=$('shMusic');let shFadeTimer;
 function shPlayMusic(){clearInterval(shFadeTimer);shAudio.volume=0;shAudio.play().then(()=>{let v=0;shFadeTimer=setInterval(()=>{v=Math.min(.35,v+.035);shAudio.volume=v;if(v>=.35)clearInterval(shFadeTimer)},200)}).catch(()=>{});$('shSound').hidden=false;}
