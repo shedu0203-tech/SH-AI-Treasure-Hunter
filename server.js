@@ -356,8 +356,10 @@ if (Array.isArray(b.gps) && b.gps.length === COUNT) {
     }
 
    const name = decodeURIComponent(
-  u.pathname === '/' ? 'index.html' : u.pathname.slice(1)
-); 
+  u.pathname === '/' || u.pathname === '/student/'
+    ? 'index.html'
+    : u.pathname.slice(1)
+);
 
     
 
