@@ -17,6 +17,7 @@ body {
 h2 {
   margin-top: 50px;
 }
+#missionBox{bottom:5% !important;border-color:#eac36b !important;background:linear-gradient(145deg,#14283eeb,#091522f5)!important;box-shadow:0 0 25px #eac36b44!important} #missionBox h2{margin:10px 0} #missionBox button:disabled{opacity:.55} #missionBox p{line-height:1.6} #startMission{background:linear-gradient(135deg,#ffe4a0,#c99538)!important}
 </style>
   <script type="importmap">
 {
@@ -53,8 +54,7 @@ h2 {
   <h3 style="color:#ffd700;">
     🎯 NEW MISSION
   </h3>
-  <p>안녕! 나를 찾았구나.</p>
-  <p>이제 미션을 시작해 볼까?</p>
+  <p id="npcDialogue" aria-live="polite"></p>
   <button id="startMission" style="
   width:100%;
   padding:15px;
@@ -67,7 +67,7 @@ h2 {
   font-weight:bold;
   cursor:pointer;
 ">
-  ▶ 미션 시작하기
+  ▶ 미션 수락하기
   </button>
 </div>
 <script type="module">
@@ -95,7 +95,7 @@ renderer.xr.addEventListener('sessionstart', () => {
 });
 
 renderer.xr.addEventListener('sessionend', () => {
-  document.getElementById('intro').style.display = 'block';
+  document.getElementById('intro').style.display = 'block'; if(!document.getElementById('startMission'))location.href='/?return=1';
   document.getElementById('missionBox').style.display = 'none'; document.body.style.background='#101827';
 });
 document.body.appendChild(renderer.domElement);
@@ -125,71 +125,51 @@ let requested = false;
 let characterSpawned = false;
 let activeCharacter = null;
 const controller = renderer.xr.getController(0);
-
-  function spawnCharacter() {
-  if (!ring.visible || characterSpawned) return;
-characterSpawned = true;
-
-  const loader = new GLTFLoader();
-const position = new THREE.Vector3();
-position.setFromMatrixPosition(ring.matrix);
-
-loader.load('./sh-character.glb', (gltf) => {
-  const character = gltf.scene;
-  character.position.copy(position);
-  character.scale.setScalar(0.5);
-  scene.add(character);
-  activeCharacter = character;
-  if (gltf.animations.length > 0) {
-  const mixer = new THREE.AnimationMixer(character);
-  mixers.push(mixer);
-  mixer.clipAction(gltf.animations[0]).play();
-  }
-}, undefined, (error) => {
-  console.error('캐릭터 로딩 오류:', error);
-  characterSpawned = false;
-});
+let approach = null, phase = 'search', idleAsset = null, walkAsset = null, activeMixer = null, generation = 0;
+const loader = new GLTFLoader();
+const ray = new THREE.Raycaster();
+const cameraPos = new THREE.Vector3();
+const sparks = new THREE.Group(); scene.add(sparks);
+const sparkGeo = new THREE.SphereGeometry(.012, 6, 6);
+for(let i=0;i<32;i++){const m=new THREE.Mesh(sparkGeo,new THREE.MeshBasicMaterial({color:0xffd879,transparent:true})); sparks.add(m);}
+sparks.visible=false;
+let sparkleTime=0, audio=null;
+function footstep(){try{if(!audio || audio.state!=='running')return; const b=audio.createBuffer(1,Math.floor(audio.sampleRate*.13),audio.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/d.length*7);const src=audio.createBufferSource(),f=audio.createBiquadFilter(),g=audio.createGain();src.buffer=b;f.type='lowpass';f.frequency.value=650;g.gain.value=.16;src.connect(f).connect(g).connect(audio.destination);src.start();}catch(e){}}
+function speak(text, target, done){
+  const el=document.getElementById(target); if(el)el.textContent=text;
+  if(!window.speechSynthesis){done?.();return;}
+  const synth=window.speechSynthesis; synth.cancel();
+  const u=new SpeechSynthesisUtterance(text);u.lang='ko-KR';u.rate=.91;u.pitch=.91;u.volume=1;
+  const voices=synth.getVoices().filter(v=>/^ko/i.test(v.lang));
+  const voice=voices.find(v=>/natural|neural|premium/i.test(v.name))||voices.find(v=>/google/i.test(v.name))||voices[0];if(voice)u.voice=voice;
+  let finished=false;const finish=()=>{if(finished)return;finished=true;done?.();};u.onend=finish;u.onerror=finish;synth.speak(u);setTimeout(finish,Math.max(4500,text.length*230));
 }
-controller.addEventListener('select', () => {
-  if (!activeCharacter) return;
+function setModel(asset, mode){
+ if(!asset)return;const old=activeCharacter;const model=asset.scene;
+ if(old){model.position.copy(old.position);model.rotation.copy(old.rotation);model.scale.copy(old.scale);scene.remove(old);}
+ mixers.forEach(m=>m.stopAllAction());mixers.length=0;scene.add(model);activeCharacter=model;
+ const clips=asset.animations;const clip=clips.find(c=>mode==='walk'?/walk/i.test(c.name):/idle|stand/i.test(c.name))||clips[0];
+ if(clip){activeMixer=new THREE.AnimationMixer(model);mixers.push(activeMixer);activeMixer.clipAction(clip).reset().play();}
+}
+loader.load('./sh_idle.glb',g=>{idleAsset=g;if(phase==='ready'&&activeCharacter)setModel(g,'idle');},undefined,()=>{});
+function faceViewer(){if(!activeCharacter)return;const p=cameraPos.clone();p.y=activeCharacter.position.y;activeCharacter.lookAt(p);}
+function showBrief(){phase='brief';if(idleAsset)setModel(idleAsset,'idle');faceViewer();const box=document.getElementById('missionBox');box.style.display='block';const btn=document.getElementById('startMission');btn.disabled=true;const epoch=generation;speak('탐험대, 반갑습니다! 드디어 저를 찾았군요. 준비됐다면 미션을 수락해 주세요.','npcDialogue',()=>{if(epoch===generation&&phase==='brief')btn.disabled=false;});}
 
-    if (activeCharacter) {
-    console.log('캐릭터 터치 성공');
-    if (!activeCharacter.userData.idleLoading) {
-  activeCharacter.userData.idleLoading = true;
-  const loader = new GLTFLoader();
 
-  loader.load('./sh_idle.glb', (gltf) => {
-    const idle = gltf.scene;
-    idle.position.copy(activeCharacter.position);
-    idle.rotation.copy(activeCharacter.rotation);
-    idle.scale.copy(activeCharacter.scale);
-
-    mixers.forEach(m => m.stopAllAction());
-    mixers.length = 0;
-
-    scene.remove(activeCharacter);
-    scene.add(idle);
-    activeCharacter = idle;
-    idle.userData.idleLoading = true;
-
-    if (gltf.animations.length > 0) {
-      const mixer = new THREE.AnimationMixer(idle);
-      mixers.push(mixer);
-      mixer.clipAction(gltf.animations[0]).play();
-    }
-  }, undefined, (error) => {
-    activeCharacter.userData.idleLoading = false;
-    console.error(error);
-  });
-    }
-    const speech = new SpeechSynthesisUtterance(
-  '안녕! 나를 찾았구나. 이제 미션을 시작해 볼까?'
-);
-speech.lang = 'ko-KR';
-window.speechSynthesis.speak(speech);
-      document.getElementById('missionBox').style.display = 'block';
-  }
+function spawnCharacter(){
+ if(!ring.visible||characterSpawned)return;characterSpawned=true;const epoch=generation;
+ const position=new THREE.Vector3().setFromMatrixPosition(ring.matrix);
+ const ready=g=>{if(epoch!==generation)return;walkAsset=g;setModel(idleAsset||g,'idle');activeCharacter.position.copy(position);activeCharacter.scale.setScalar(.5);faceViewer();phase='ready';sparks.position.copy(position);sparkleTime=1.3;sparks.visible=true;};
+ if(walkAsset)ready(walkAsset);else loader.load('./sh-character.glb',ready,undefined,()=>{if(epoch===generation)characterSpawned=false;});
+}
+controller.addEventListener('select',()=>{
+ if(phase!=='ready'||!activeCharacter)return;
+ controller.updateMatrixWorld(true);ray.setFromXRController ? ray.setFromXRController(controller) : (ray.ray.origin.setFromMatrixPosition(controller.matrixWorld),ray.ray.direction.set(0,0,-1).transformDirection(controller.matrixWorld));
+ if(!ray.intersectObject(activeCharacter,true).length)return;
+ try{audio ||= new (window.AudioContext||window.webkitAudioContext)();audio.resume();}catch(e){}
+ phase='approach';const from=activeCharacter.position.clone(),to=cameraPos.clone();to.y=from.y;
+ const distance=from.distanceTo(to);if(distance<.85){showBrief();return;}to.lerp(from,.85/distance);
+ if(walkAsset)setModel(walkAsset,'walk');faceViewer();approach={from,to,elapsed:0,step:-1};
 });
 scene.add(controller);
 const mixers = [];
@@ -197,6 +177,10 @@ const clock = new THREE.Clock();
 renderer.setAnimationLoop((time, frame) => {
   const delta = clock.getDelta();
 mixers.forEach(mixer => mixer.update(delta));
+ if(frame){const xrCam=renderer.xr.getCamera();xrCam.getWorldPosition(cameraPos);}
+ if(approach&&activeCharacter){approach.elapsed+=Math.min(delta,.1);const t=Math.min(1,approach.elapsed/2);activeCharacter.position.lerpVectors(approach.from,approach.to,t*t*(3-2*t));faceViewer();const step=Math.floor(approach.elapsed/.42);if(step!==approach.step){approach.step=step;footstep();}if(t>=1){approach=null;showBrief();}}
+ if(sparkleTime>0){sparkleTime-=delta;const t=1-Math.max(0,sparkleTime)/1.3;sparks.children.forEach((m,i)=>{const a=i*2.399+t*2;m.position.set(Math.cos(a)*(.15+t*.45),.05+t*.7+(i%5)*.05,Math.sin(a)*(.15+t*.45));m.material.opacity=1-t;});if(sparkleTime<=0)sparks.visible=false;}
+
   if (frame) {
     const session = renderer.xr.getSession();
     const space = renderer.xr.getReferenceSpace();
@@ -215,7 +199,7 @@ mixers.forEach(mixer => mixer.update(delta));
 
       session.addEventListener('end', () => {
         requested = false;
-        hitSource = null;
+        hitSource = null; generation++; approach=null; phase='search'; characterSpawned=false; if(activeCharacter)scene.remove(activeCharacter);activeCharacter=null;mixers.forEach(m=>m.stopAllAction());mixers.length=0;sparks.visible=false;window.speechSynthesis?.cancel();
         ring.visible = false;
       }, { once: true });
     }
@@ -242,11 +226,13 @@ ring.visible = false;
 });
   const startButton = document.getElementById('startMission');
 
+document.getElementById('missionBox').addEventListener('beforexrselect',e=>e.preventDefault());
 startButton.addEventListener('beforexrselect', (event) => {
   event.preventDefault();
 });
 
 startButton.addEventListener('click', async () => {
+  startButton.disabled=true;
   try {
     const response = await fetch('/api/config');
     if (!response.ok) throw new Error('API 오류');
@@ -274,18 +260,10 @@ startButton.addEventListener('click', async () => {
     document.getElementById('missionText').textContent = mission.description;
 
     document.getElementById('submitAnswer').addEventListener('click',async()=>{const btn=document.getElementById('submitAnswer');btn.disabled=true;try{const r=await fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json','x-team-token':localStorage.getItem('sh_treasure_token')||''},body:JSON.stringify({mission:missionId,answer:document.getElementById('answer').value})});const result=await r.json();if(!r.ok)throw Error(result.error);await renderer.xr.getSession()?.end();location.href='/?return=1';}catch(e){document.getElementById('answerStatus').textContent=e.message;btn.disabled=false;}});
-    const speech = new SpeechSynthesisUtterance(
-      mission.title + '. ' + mission.description
-    );
-
-    speech.lang = 'ko-KR';
-    speech.rate = 0.95;
-
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(speech);
+    speak(mission.title + '. ' + mission.description, '');
 
   } catch (error) {
-    alert('미션을 불러오지 못했습니다.');
+    startButton.disabled=false;alert('미션을 불러오지 못했습니다.');
   }
 });
 </script>
