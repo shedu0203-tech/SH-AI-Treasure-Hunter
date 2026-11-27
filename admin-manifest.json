@@ -3,7 +3,7 @@
   "name": "AI 트레저헌터 관리자앱",
   "short_name": "트레저헌터 관리자",
   "start_url": "/admin.html",
-  "scope": "/",
+  "scope": "/admin.html",
   "display": "standalone",
   "background_color": "#071b35",
   "theme_color": "#071b35",
