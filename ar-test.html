@@ -18,6 +18,9 @@ h2 {
   margin-top: 50px;
 }
 #missionBox{bottom:5% !important;border-color:#eac36b !important;background:linear-gradient(145deg,#14283eeb,#091522f5)!important;box-shadow:0 0 25px #eac36b44!important} #missionBox h2{margin:10px 0} #missionBox button:disabled{opacity:.55} #missionBox p{line-height:1.6} #startMission{background:linear-gradient(135deg,#ffe4a0,#c99538)!important}
+
+#missionBox{ text-align:left; bottom: max(12px, env(safe-area-inset-bottom)) !important; padding:18px !important; border-radius:22px !important; max-height:48dvh; overflow:auto; font-family:system-ui,sans-serif; }
+#missionBox h3{font-size:12px;letter-spacing:2px;margin:6px 0;color:#ffdb83} #missionBox p{font-size:18px;font-weight:700;white-space:pre-wrap;margin:12px 0;color:#fff8e7} #missionBox button{width:100%;padding:14px;border:0;border-radius:12px;background:linear-gradient(135deg,#ffe5a0,#d69b38);color:#14243a;font-weight:900;font-size:16px} #missionBox input{box-sizing:border-box;width:100%!important;border-radius:12px;border:1px solid #d6b66c;background:#fff;color:#14243a;margin:8px 0;font-size:16px} #missionBox h2{font-size:21px;color:#ffe5a0} #discovery{display:none;position:fixed;top:18%;left:5%;width:90%;z-index:9998;pointer-events:none;color:#ffe49a;text-shadow:0 2px 12px #352000,0 0 24px #ffb62d;font-size:30px;font-weight:1000;letter-spacing:1px} #discovery.on{display:block;animation:discover 1.7s both} @keyframes discover{0%{opacity:0;transform:scale(.65)} 22%{opacity:1;transform:scale(1.08)} 75%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:translateY(-12px)}} #missionBox.open{animation:dialogIn .35s ease-out} @keyframes dialogIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 </style>
   <script type="importmap">
 {
@@ -33,6 +36,7 @@ h2 {
   <h2>SH AI 트레저헌터</h2>
   <p>AR 시작 후 안전한 곳에 멈춰 바닥을 비춰주세요.</p><a href="/?return=1" style="color:white">메인으로 돌아가기</a>
 </div>
+<div id="discovery">✦ 비밀요원 발견! ✦<div style="font-size:13px">SECRET AGENT DISCOVERED</div></div>
 <div id="missionBox" style="
   display:none;
   position:fixed;
@@ -49,10 +53,10 @@ h2 {
   box-shadow:0 0 25px #00e5ff66;
 ">
   <div style="color:#00e5ff;font-size:12px;letter-spacing:3px;">
-    SH AI TREASURE HUNTER
+    ◆ SH 비밀요원 · 비밀 교신
   </div>
   <h3 style="color:#ffd700;">
-    🎯 NEW MISSION
+    ✦ 새로운 퀘스트
   </h3>
   <p id="npcDialogue" aria-live="polite"></p>
   <button id="startMission" style="
@@ -67,7 +71,7 @@ h2 {
   font-weight:bold;
   cursor:pointer;
 ">
-  ▶ 미션 수락하기
+  좋아! 다음 이야기를 들려줘 ▶
   </button>
 </div>
 <script type="module">
@@ -95,7 +99,7 @@ renderer.xr.addEventListener('sessionstart', () => {
 });
 
 renderer.xr.addEventListener('sessionend', () => {
-  document.getElementById('intro').style.display = 'block'; if(!document.getElementById('startMission'))location.href='/?return=1';
+  document.getElementById('intro').style.display = 'block';
   document.getElementById('missionBox').style.display = 'none'; document.body.style.background='#101827';
 });
 document.body.appendChild(renderer.domElement);
@@ -153,7 +157,15 @@ function setModel(asset, mode){
 }
 loader.load('./sh_idle.glb',g=>{idleAsset=g;if(phase==='ready'&&activeCharacter)setModel(g,'idle');},undefined,()=>{});
 function faceViewer(){if(!activeCharacter)return;const p=cameraPos.clone();p.y=activeCharacter.position.y;activeCharacter.lookAt(p);}
-function showBrief(){phase='brief';if(idleAsset)setModel(idleAsset,'idle');faceViewer();const box=document.getElementById('missionBox');box.style.display='block';const btn=document.getElementById('startMission');btn.disabled=true;const epoch=generation;speak('탐험대, 반갑습니다! 드디어 저를 찾았군요. 준비됐다면 미션을 수락해 주세요.','npcDialogue',()=>{if(epoch===generation&&phase==='brief')btn.disabled=false;});}
+let typingTimer=null, dialogueStep=0;
+function tone(freq,at,duration,volume=.055,type='sine'){if(!audio||audio.state!=='running')return;const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.001,at);g.gain.exponentialRampToValueAtTime(volume,at+.025);g.gain.exponentialRampToValueAtTime(.001,at+duration);o.connect(g).connect(audio.destination);o.start(at);o.stop(at+duration+.02);}
+function fanfare(){try{const t=audio.currentTime;[130.81,196,261.63].forEach(f=>tone(f,t,.55,.065,'triangle'));[523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,t+i*.13,.65,.065,'triangle'));[523.25,659.25,783.99,1046.5].forEach(f=>tone(f,t+.52,.85,.045));}catch(e){}}
+function discover(){const el=document.getElementById('discovery');el.classList.remove('on');void el.offsetWidth;el.classList.add('on');sparks.position.copy(activeCharacter.position);sparkleTime=1.3;sparks.visible=true;fanfare();}
+function typeLine(text,target){clearInterval(typingTimer);const el=document.getElementById(target);if(!el)return;el.textContent='';let i=0;const chars=Array.from(text);typingTimer=setInterval(()=>{if(i>=chars.length){clearInterval(typingTimer);return;}el.textContent+=chars[i++];if(i%4===0&&audio?.state==='running')tone(660,audio.currentTime,.045,.018,'triangle');},32);}
+const lines=['오호! 드디어 나를 찾아냈군! 꽤 대단한 탐험대인데?','쉿! 보물의 비밀을 풀 특별한 임무가 있어. 팀원들과 함께 도전해 볼래?'];
+function dialogue(){const btn=document.getElementById('startMission');btn.textContent=dialogueStep===0?'물론이지! 계속 이야기해 줘 ▶':'좋아! 비밀 임무를 맡겨줘! ▶';typeLine(lines[dialogueStep],'npcDialogue');speak(lines[dialogueStep],'');}
+function showBrief(){phase='brief';if(idleAsset)setModel(idleAsset,'idle');faceViewer();const box=document.getElementById('missionBox');box.style.display='block';box.classList.add('open');dialogueStep=0;dialogue();}
+
 
 
 function spawnCharacter(){
@@ -167,8 +179,8 @@ controller.addEventListener('select',()=>{
  controller.updateMatrixWorld(true);ray.setFromXRController ? ray.setFromXRController(controller) : (ray.ray.origin.setFromMatrixPosition(controller.matrixWorld),ray.ray.direction.set(0,0,-1).transformDirection(controller.matrixWorld));
  if(!ray.intersectObject(activeCharacter,true).length)return;
  try{audio ||= new (window.AudioContext||window.webkitAudioContext)();audio.resume();}catch(e){}
- phase='approach';const from=activeCharacter.position.clone(),to=cameraPos.clone();to.y=from.y;
- const distance=from.distanceTo(to);if(distance<.85){showBrief();return;}to.lerp(from,.85/distance);
+ discover();phase='approach';const from=activeCharacter.position.clone(),to=cameraPos.clone();to.y=from.y;
+ const distance=from.distanceTo(to);if(distance<.48){showBrief();return;}to.lerp(from,.48/distance);
  if(walkAsset)setModel(walkAsset,'walk');faceViewer();approach={from,to,elapsed:0,step:-1};
 });
 scene.add(controller);
@@ -225,6 +237,9 @@ ring.visible = false;
   renderer.render(scene, camera);
 });
   const startButton = document.getElementById('startMission');
+const originalBox = document.getElementById('missionBox');
+const originalNodes=Array.from(originalBox.childNodes);
+renderer.xr.addEventListener('sessionend',()=>{clearInterval(typingTimer);originalBox.replaceChildren(...originalNodes);startButton.disabled=false;originalBox.classList.remove('open');document.getElementById('discovery').classList.remove('on');});
 
 document.getElementById('missionBox').addEventListener('beforexrselect',e=>e.preventDefault());
 startButton.addEventListener('beforexrselect', (event) => {
@@ -232,6 +247,7 @@ startButton.addEventListener('beforexrselect', (event) => {
 });
 
 startButton.addEventListener('click', async () => {
+  if(dialogueStep===0){dialogueStep=1;dialogue();return;}
   startButton.disabled=true;
   try {
     const response = await fetch('/api/config');
@@ -250,14 +266,17 @@ startButton.addEventListener('click', async () => {
 
     const box = document.getElementById('missionBox');
 
-    box.innerHTML = `
-      <h3 style="color:#ffd700;">🎯 MISSION ${missionId}</h3>
+    box.replaceChildren();
+    const resultPanel=document.createElement('div');
+    box.appendChild(resultPanel);
+    resultPanel.innerHTML = `
+      <h3 style="color:#ffd700;">✦ 비밀 퀘스트 ${missionId}</h3>
       <h2 id="missionTitle"></h2>
-      <p id="missionText"></p><input id="answer" placeholder="정답 입력" style="width:90%;padding:12px"><button id="submitAnswer">정답 제출</button><p id="answerStatus"></p>
+      <p id="missionText"></p><input id="answer" placeholder="요원에게 답을 알려줘!" style="width:90%;padding:12px"><button id="submitAnswer">임무 결과 전송 ▶</button><p id="answerStatus"></p>
     `;
 
     document.getElementById('missionTitle').textContent = mission.title;
-    document.getElementById('missionText').textContent = mission.description;
+    typeLine(mission.description,'missionText');
 
     document.getElementById('submitAnswer').addEventListener('click',async()=>{const btn=document.getElementById('submitAnswer');btn.disabled=true;try{const r=await fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json','x-team-token':localStorage.getItem('sh_treasure_token')||''},body:JSON.stringify({mission:missionId,answer:document.getElementById('answer').value})});const result=await r.json();if(!r.ok)throw Error(result.error);await renderer.xr.getSession()?.end();location.href='/?return=1';}catch(e){document.getElementById('answerStatus').textContent=e.message;btn.disabled=false;}});
     speak(mission.title + '. ' + mission.description, '');
