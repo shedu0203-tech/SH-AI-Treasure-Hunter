@@ -5,6 +5,7 @@
   "short_name": "트레저헌터",
   "start_url": "/",
   "scope": "/",
+  "prefer_related_applications": false,
   "display": "standalone",
   "background_color": "#071632",
   "theme_color": "#071632",
