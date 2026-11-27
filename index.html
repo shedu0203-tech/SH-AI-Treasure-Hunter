@@ -8,10 +8,7 @@
 <meta name="theme-color" content="#123c69">
 <title>AI 트레저헌터</title>
   
-<link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=294108b5b38e8ec36488d2fa7ebb81aa"></script>
 
 <style>
 *{box-sizing:border-box}
@@ -862,23 +859,13 @@ let myLocationMarker = null;
 function initExploreMap() {
   if (exploreMapInstance) return;
 
-  if (typeof L === 'undefined') {
-    $('mapStatus').textContent =
-      '지도 라이브러리를 불러오지 못했습니다.';
+  if (!window.kakao?.maps?.Map) {
+    $('mapStatus').textContent = '카카오 지도를 불러오지 못했습니다. 도메인 및 API 설정을 확인해주세요.';
     return;
   }
-
-  exploreMapInstance = L.map('exploreMap').setView(
-    [37.5665, 126.9780], 15
-  );
-
-  L.tileLayer(
-    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    {
-      attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19
-    }
-  ).addTo(exploreMapInstance);
+  exploreMapInstance = new kakao.maps.Map($('exploreMap'), {
+    center: new kakao.maps.LatLng(37.5665, 126.9780), level: 5
+  });
 
   $('mapStatus').textContent =
     'GPS 위치를 확인할 준비가 되었습니다.';
@@ -887,24 +874,19 @@ function initExploreMap() {
 function updateMyLocation(gps) {
   if (!exploreMapInstance || !gps) return;
 
-  const position = [gps.lat, gps.lng];
-
+  const position = new kakao.maps.LatLng(gps.lat, gps.lng);
   if (!myLocationMarker) {
-    myLocationMarker = L.circleMarker(position, {
-      radius: 9,
-      color: '#ffffff',
-      weight: 3,
-      fillColor: '#1683ff',
-      fillOpacity: 1
-    }).addTo(exploreMapInstance);
+    const dot = document.createElement('div');
+    dot.style.cssText = 'width:22px;height:22px;border:3px solid white;border-radius:50%;background:#1683ff;box-shadow:0 1px 5px #0008;';
+    myLocationMarker = new kakao.maps.CustomOverlay({map:exploreMapInstance, position, content:dot, xAnchor:0.5, yAnchor:0.5, zIndex:10});
   } else {
-    myLocationMarker.setLatLng(position);
+    myLocationMarker.setPosition(position);
   }
-
   if (!exploreMapInstance._shCenteredOnce) {
-  exploreMapInstance.setView(position, 17);
-  exploreMapInstance._shCenteredOnce = true;
-}
+    exploreMapInstance.setLevel(3);
+    exploreMapInstance.setCenter(position);
+    exploreMapInstance._shCenteredOnce = true;
+  }
 
   $('mapStatus').textContent =
     '📍 현재 위치 추적 중 · GPS 오차 약 ' +
@@ -1106,7 +1088,7 @@ function startExploreMap() {
   if (!exploreMapInstance) return;
 
   setTimeout(() => {
-    exploreMapInstance.invalidateSize();
+    exploreMapInstance.relayout();
   }, 300);
 showMissionPins();
   startLiveGPS(updateMyLocation);
@@ -1118,7 +1100,7 @@ function showMissionPins() {
   if (!exploreMapInstance || !config?.missions) return;
 
   missionMarkers.forEach(marker =>
-    exploreMapInstance.removeLayer(marker)
+    marker.setMap(null)
   );
   missionMarkers = [];
 
@@ -1130,18 +1112,11 @@ const lng = Number(mission.gps?.lng);
         !Number.isFinite(lng) ||
         (lat === 0 && lng === 0)) return;
    
-const marker = L.circleMarker([lat, lng], {
-  radius: 11,
-  color: '#ffffff',
-  weight: 3,
-  fillColor: '#ff3030',
-  fillOpacity: 1
-})
-
-      .addTo(exploreMapInstance)
-      .bindPopup(
-        '📍 ' + (index + 1) + '번 미션'
-      );
+    const pin = document.createElement('div');
+    pin.textContent = String(index + 1);
+    pin.style.cssText = 'width:28px;height:28px;border:3px solid white;border-radius:50%;background:#ff3030;color:white;font:bold 12px Arial;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 5px #0008;';
+    pin.title = (index + 1) + '번 미션';
+    const marker = new kakao.maps.CustomOverlay({map:exploreMapInstance, position:new kakao.maps.LatLng(lat,lng), content:pin, xAnchor:0.5, yAnchor:0.5, zIndex:5});
 
     missionMarkers.push(marker);
   });
@@ -1437,7 +1412,8 @@ if (Number.isFinite(lat) &&
     Number.isFinite(lng) &&
     !(lat === 0 && lng === 0) &&
 exploreMapInstance) {
-  exploreMapInstance.setView([lat, lng], 18);
+  exploreMapInstance.setLevel(2);
+  exploreMapInstance.setCenter(new kakao.maps.LatLng(lat, lng));
 }
   }, 300);
 }
