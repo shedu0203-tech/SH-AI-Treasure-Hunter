@@ -123,7 +123,10 @@ const summary = () => Array.from({length: MAX_TEAMS}, (_, i) => {
 http.createServer(async (req, res) => {
   try {
     const u = new URL(req.url, 'http://localhost');
-
+if (u.pathname === '/file_000000008074821191bedefe1bb6bb49.png') {
+  res.writeHead(200, {'Content-Type': 'image/png'});
+  return res.end(fs.readFileSync(path.join(root, 'file_000000008074821191bedefe1bb6bb49.png')));
+}
     if (u.pathname === '/api/config' && req.method === 'GET') {
       return send(res, 200, {
         missions: missions.map((m, i) => ({
