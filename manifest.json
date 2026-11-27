@@ -1,0 +1,18 @@
+
+{
+  "name": "SH AI 트레저헌터",
+  "short_name": "트레저헌터",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#071632",
+  "theme_color": "#071632",
+  "icons": [
+    {
+      "src": "/file_0000000021d08209a093d6604caa9499.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
