@@ -46,7 +46,7 @@ th{background:#edf3f9}
 <body>
 <header>
 <h1>🗝️ SH AI 트레저헌터</h1>
-<p>지도자 전용 · 15개 미션 / 40개 팀 관리</p>
+<p>지도자 전용 · 10개 미션 / 40개 팀 관리</p>
 </header>
 <main>
 
@@ -93,7 +93,7 @@ th{background:#edf3f9}
 <th>점수</th>
 <th>진행률</th>
 <th>승인 대기</th>
-<th>관리</th>
+<th>최종 승인</th><th>관리</th>
 </tr>
 </thead>
 <tbody id="teamRows"></tbody>
@@ -103,7 +103,7 @@ th{background:#edf3f9}
 </section>
 
 <section>
-<h2>📍 15개 미션 장소 설정</h2>
+<h2>📍 10개 미션 장소 설정</h2>
 <p class="small">수련원마다 장소를 변경할 수 있습니다. 변경 후 저장하세요.</p>
 <div id="places"></div>
 <button class="green full" onclick="saveSettings()">장소 및 운영 상태 저장</button>
@@ -111,7 +111,7 @@ th{background:#edf3f9}
 
 <section>
   <h2>📍 GPS 위치 설정 안내</h2>
-  <p>15개 미션의 GPS 좌표를 설정하고 관리합니다.</p>
+  <p>10개 미션의 GPS 좌표를 설정하고 관리합니다.</p>
   <p>각 미션 장소의 위도와 경도를 등록하면
   학생의 도착 여부를 확인할 수 있습니다.</p>
 
@@ -270,7 +270,7 @@ $('testMode').checked = Boolean(data.testMode);
 
  $('teamRows').innerHTML=teams.map(t=>{
   const count=(t.done||[]).filter(Boolean).length;
-  const total=missions.length||15;
+  const total=missions.length||10;
   const rate=Math.round(count/total*100);
   return `<tr>
    <td>${esc(t.id)}</td>
@@ -281,9 +281,9 @@ $('testMode').checked = Boolean(data.testMode);
     <div class="progress"><div class="bar" style="width:${rate}%"></div></div>
     ${rate}%
    </td>
-   <td>${(t.pending||[]).length}건</td>
+   <td>${(t.pending||[]).length}건 ${count>=6?(t.lightningDone?'⚡ 완료':`<button onclick="action('lightning-approve',{team:${Number(t.id)}},'번개 미션 승인 완료')">⚡ 승인</button>`):''}</td>
    
-<td>${count===15 ? (t.finalApproved ? '🏆 최종 승인 완료' : t.finalRequested ? `<button class="green" onclick="approveFinal(${Number(t.id)})">🏆 최종 승인</button>` : '최종 승인 요청 대기') : '미션 진행 중'}</td>
+<td>${count===total ? (t.finalApproved ? '🏆 최종 승인 완료' : t.finalRequested ? `<button class="green" onclick="approveFinal(${Number(t.id)})">🏆 최종 승인</button>` : '최종 승인 요청 대기') : '미션 진행 중'}</td>
 
    <td><button class="danger" ${!t.name?'disabled':''} onclick="resetTeam(${Number(t.id)})">초기화</button></td>
    </tr>`;
@@ -330,7 +330,7 @@ async function approve(team,mission){
 }
 
 async function approveFinal(team){
-  if(!confirm(team+'팀의 15개 미션을 최종 승인하시겠습니까?')) return;
+  if(!confirm(team+'팀의 10개 미션을 최종 승인하시겠습니까?')) return;
   await action(
     'final-approve',
     {team},
@@ -375,14 +375,14 @@ async function saveTestMode() {
 }
 
 function fillCurrentGPS() {
-  const mission = prompt('GPS를 등록할 미션 번호를 입력하세요. (1~15)');
+  const mission = prompt('GPS를 등록할 미션 번호를 입력하세요. (1~10)');
 
   if (mission === null) return;
 
   const n = Number(mission);
 
-  if (!Number.isInteger(n) || n < 1 || n > 15) {
-    alert('1부터 15까지 입력해주세요.');
+  if (!Number.isInteger(n) || n < 1 || n > 10) {
+    alert('1부터 10까지 입력해주세요.');
     return;
   }
 
@@ -480,7 +480,7 @@ async function saveGPS(){
 
 function exportCSV(){
  if(!data)return;
- const total=data.missions.length||15;
+ const total=data.missions.length||10;
  const rows=[['팀 번호','팀 이름','완료 미션','총 미션','점수','승인 대기']];
  data.teams.forEach(t=>{
   const count=(t.done||[]).filter(Boolean).length;

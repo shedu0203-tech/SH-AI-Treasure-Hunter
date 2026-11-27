@@ -881,7 +881,7 @@ function updateMyLocation(gps) {
   const position = new kakao.maps.LatLng(gps.lat, gps.lng);
   if (!myLocationMarker) {
     const dot = document.createElement('div');
-    dot.style.cssText = 'width:22px;height:22px;border:3px solid white;border-radius:50%;background:#1683ff;box-shadow:0 1px 5px #0008;';
+    dot.className='shPulse'; dot.style.cssText = 'width:22px;height:22px;border:3px solid white;border-radius:50%;background:#1683ff;box-shadow:0 1px 5px #0008;';
     myLocationMarker = new kakao.maps.CustomOverlay({map:exploreMapInstance, position, content:dot, xAnchor:0.5, yAnchor:0.5, zIndex:10});
   } else {
     myLocationMarker.setPosition(position);
@@ -900,7 +900,7 @@ function updateMyLocation(gps) {
     m => Number(m.id) === activeMissionId
   );
 
-  if (target && target.gps?.lat != null &&
+  if (activeMissionId && !state?.done?.[activeMissionId-1] && target && target.gps?.lat != null &&
     target.gps?.lng != null) {
   const lat = Number(target.gps.lat);
   const lng = Number(target.gps.lng);
@@ -1109,6 +1109,7 @@ function showMissionPins() {
   missionMarkers = [];
 
   config.missions.forEach((mission, index) => {
+    if (Number(mission.id) !== activeMissionId) return;
     const lat = Number(mission.gps?.lat);
 const lng = Number(mission.gps?.lng);
 
@@ -1207,7 +1208,7 @@ async function init(){
   if(typeof result.open==='boolean')config.open=result.open;
   render(); 
 setTimeout(() => {
-  startExploreMap();
+  if(activeMissionId) startExploreMap();
 }, 500);
 
  }catch(e){
@@ -1239,7 +1240,7 @@ async function join(){
   state=result.team;
   render();
 setTimeout(() => {
-  startExploreMap();
+  if(activeMissionId) startExploreMap();
 }, 500);
 
   $('notice').classList.add('hidden');
@@ -1310,6 +1311,7 @@ if (finalButton) {
         : '<button type="button" class="full" onclick="requestFinalApproval()">🏆 관리자 최종 승인 요청</button>';
 }
 
+ if(count>=6 && !state.lightningDone && !document.getElementById('lightningNotice')) { const el=document.createElement('div'); el.id='lightningNotice'; el.innerHTML='<h2>⚡ 번개 미션 발동</h2><p>팀원 모두 지도자가 안내한 출발 장소로 안전하게 이동하세요.</p><button id=lightningClose>확인</button>'; document.body.append(el); el.querySelector('button').onclick=()=>{el.style.display='none';}; }
  const rail = $('missions');
  const signature = JSON.stringify([missions,done,pending,config.open]);
  if (rail.dataset.signature !== signature) {
@@ -1362,6 +1364,7 @@ function openMissionMap(id) {
   return;
 }
   
+if(state?.done?.[Number(id)-1])return;
 activeMissionId = Number(id);
  arrivedMissionId = null;
 
@@ -2144,12 +2147,16 @@ body:has(#game:not(.hidden)){background:radial-gradient(ellipse at top,#245e50,#
 <div id="shOpening" role="dialog" aria-modal="true" aria-label="게임 시작"><div class="shOpeningCard"><img id="shOpeningArt" src="file_00000000dbc082099d276aefb3cb784a.png" alt="SH AI 트레저헌터" onerror="this.onerror=null;this.src=document.getElementById('shHero').src"><h2>SH AI TREASURE HUNTER</h2><p>전설의 보물을 찾아라!</p><button id="shStart" type="button" onclick="shEnter()">▶ 게임 시작</button></div></div>
 <audio id="shMusic" src="atlasaudio-adventure-522409(3).mp3" loop preload="none"></audio><button id="shSound" hidden type="button" aria-label="배경음악 음소거" onclick="shToggleSound()">♫</button>
 <script>
-const shAudio=$('shMusic');let shFadeTimer;
-function shPlayMusic(){clearInterval(shFadeTimer);shAudio.volume=0;shAudio.play().then(()=>{let v=0;shFadeTimer=setInterval(()=>{v=Math.min(.35,v+.035);shAudio.volume=v;if(v>=.35)clearInterval(shFadeTimer)},200)}).catch(()=>{});$('shSound').hidden=false;}
-function shToggleSound(){if(shAudio.paused){shPlayMusic();shAudio.muted=false}else{shAudio.muted=!shAudio.muted}$('shSound').textContent=shAudio.muted?'🔇':'♫';$('shSound').setAttribute('aria-label',shAudio.muted?'배경음악 켜기':'배경음악 음소거');}
-function shEnter(){sessionStorage.setItem('shOpeningSeen','1');const o=$('shOpening');o.classList.add('shClosing');setTimeout(()=>{o.hidden=true;document.querySelector('main').inert=false;document.querySelector('header').inert=false},650);if(state&&!$('game').classList.contains('hidden'))shPlayMusic();}
-async function shJoinWithMusic(){if(busy)return;const n=Number($('teamNumber').value);if(!Number.isInteger(n)||n<1||n>40||!$('teamName').value.trim()){await join();return}shPlayMusic();await join();if($('game').classList.contains('hidden')){clearInterval(shFadeTimer);shAudio.pause();$('shSound').hidden=true;}}
-if(document.referrer.includes('/ar-test.html')&&sessionStorage.getItem('shOpeningSeen')){$('shOpening').hidden=true;$('shSound').hidden=false;}else{document.querySelector('main').inert=true;document.querySelector('header').inert=true;}
+const shAudio=$('shMusic');
+let shMuted=sessionStorage.getItem('shMusicMuted')==='1';
+function shMainVisible(){return !document.hidden && $('shOpening').hidden && !$('game').classList.contains('hidden') && $('exploreMapCard').classList.contains('hidden') && $('missionPopup').hidden && $('treasure').classList.contains('hidden') && !$('shCameraScreen') && !$('lightningNotice');}
+function shSyncMusic(){const main=shMainVisible();if($('shSound').hidden===main)$('shSound').hidden=!main;shAudio.volume=.35;const symbol=shMuted?'🔇':'♫';if($('shSound').textContent!==symbol)$('shSound').textContent=symbol;$('shSound').setAttribute('aria-label',shMuted?'배경음악 켜기':'배경음악 음소거');if(main&&!shMuted){if(shAudio.paused)shAudio.play().catch(()=>{});}else if(!shAudio.paused)shAudio.pause();}
+function shToggleSound(){shMuted=!shMuted;sessionStorage.setItem('shMusicMuted',shMuted?'1':'0');shSyncMusic();}
+function shEnter(){sessionStorage.setItem('shOpeningSeen','1');const o=$('shOpening');o.classList.add('shClosing');setTimeout(()=>{o.hidden=true;document.querySelector('main').inert=false;document.querySelector('header').inert=false;shSyncMusic();},650);}
+async function shJoinWithMusic(){await join();shSyncMusic();}
+const shMusicObserver=new MutationObserver(shSyncMusic);shMusicObserver.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden']});
+document.addEventListener('visibilitychange',shSyncMusic);window.addEventListener('pagehide',()=>shAudio.pause());window.addEventListener('pageshow',shSyncMusic);document.addEventListener('pointerup',e=>{if(!e.target.closest('#shSound'))shSyncMusic();});
+if((document.referrer.includes('/ar-test.html')||new URLSearchParams(location.search).has('return'))&&sessionStorage.getItem('shOpeningSeen')){$('shOpening').hidden=true;$('shSound').hidden=false;}else{document.querySelector('main').inert=true;document.querySelector('header').inert=true;}
 const dots=document.createElement('div');dots.id='shDots';$('missionPosition').after(dots);function shUpdateDots(){const cards=Array.from($('missions').children);dots.replaceChildren(...cards.map(c=>{const d=document.createElement('span');d.className=c.classList.contains('focused')?'active':'';return d;}));}new MutationObserver(shUpdateDots).observe($('missions'),{childList:true,subtree:true,attributes:true,attributeFilter:['class']});shUpdateDots();
 </script>
 
@@ -2169,5 +2176,5 @@ body:has(#game:not(.hidden)){background:linear-gradient(90deg,#031a2270,#03232be
 #gameNav{border:4px ridge #e5b650;border-radius:24px;background:linear-gradient(#18394c,#071827);}
 body:has(#game:not(.hidden)) > #shSound:not([hidden]){display:block!important;}
 </style>
-</body>
+<style>.shPulse{animation:shPulse 1.8s infinite}@keyframes shPulse{0%{box-shadow:0 0 0 0 #1683ff88}100%{box-shadow:0 0 0 18px #1683ff00}}#game #missions{padding-inline:22%!important;scroll-padding-inline:22%!important}#game #missions .mission:not(.focused){opacity:.88!important;transform:scale(.94)!important}#lightningNotice{position:fixed;inset:25% 6% auto;z-index:31000;background:#450e16;border:3px solid #ff4949;border-radius:20px;padding:24px;text-align:center;color:white;box-shadow:0 0 0 100vmax #0009} .shOpeningCard{border:4px ridge #ffcf68!important}</style></body>
 </html>

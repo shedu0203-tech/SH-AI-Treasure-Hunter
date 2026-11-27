@@ -30,7 +30,7 @@ h2 {
 <body>
 <div id="intro">
   <h2>SH AI 트레저헌터</h2>
-  <p>AR 시작 후 바닥을 비춰주세요.</p>
+  <p>AR 시작 후 안전한 곳에 멈춰 바닥을 비춰주세요.</p><a href="/?return=1" style="color:white">메인으로 돌아가기</a>
 </div>
 <div id="missionBox" style="
   display:none;
@@ -91,12 +91,12 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(innerWidth, innerHeight);
 renderer.xr.enabled = true;
 renderer.xr.addEventListener('sessionstart', () => {
-  document.getElementById('intro').style.display = 'none';
+  document.getElementById('intro').style.display = 'none'; document.body.style.background='transparent';
 });
 
 renderer.xr.addEventListener('sessionend', () => {
   document.getElementById('intro').style.display = 'block';
-  document.getElementById('missionBox').style.display = 'none';
+  document.getElementById('missionBox').style.display = 'none'; document.body.style.background='#101827';
 });
 document.body.appendChild(renderer.domElement);
 
@@ -267,12 +267,13 @@ startButton.addEventListener('click', async () => {
     box.innerHTML = `
       <h3 style="color:#ffd700;">🎯 MISSION ${missionId}</h3>
       <h2 id="missionTitle"></h2>
-      <p id="missionText"></p>
+      <p id="missionText"></p><input id="answer" placeholder="정답 입력" style="width:90%;padding:12px"><button id="submitAnswer">정답 제출</button><p id="answerStatus"></p>
     `;
 
     document.getElementById('missionTitle').textContent = mission.title;
     document.getElementById('missionText').textContent = mission.description;
 
+    document.getElementById('submitAnswer').addEventListener('click',async()=>{const btn=document.getElementById('submitAnswer');btn.disabled=true;try{const r=await fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json','x-team-token':localStorage.getItem('sh_treasure_token')||''},body:JSON.stringify({mission:missionId,answer:document.getElementById('answer').value})});const result=await r.json();if(!r.ok)throw Error(result.error);await renderer.xr.getSession()?.end();location.href='/?return=1';}catch(e){document.getElementById('answerStatus').textContent=e.message;btn.disabled=false;}});
     const speech = new SpeechSynthesisUtterance(
       mission.title + '. ' + mission.description
     );

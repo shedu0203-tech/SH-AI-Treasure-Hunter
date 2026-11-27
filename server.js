@@ -21,7 +21,7 @@ let db = {
 
 
 open: true,
-gps: Array.from({length: 15}, () => null),
+gps: Array.from({length: COUNT}, () => null),
 testMode: false
 
 
@@ -36,7 +36,7 @@ if (!Array.isArray(db.places) || db.places.length !== COUNT) {
 }
 
 if (!Array.isArray(db.gps) || db.gps.length !== COUNT) {
-  db.gps = Array.from({length: COUNT}, () => null);
+  db.gps = Array.from({length: COUNT}, (_, i) => db.gps?.[i] || null);
 }
 
 for (const t of Object.values(db.teams)) {
@@ -97,6 +97,7 @@ const publicTeam = (id, t) => {
     pending: t.pending,
     score: completed * 100,
     pieces: completed,
+    lightningDone: !!t.lightningDone,
     total: COUNT,
     unlocked: completed === COUNT,
     finalRequested: !!t.finalRequested,
@@ -214,14 +215,14 @@ t.done[i] = true;
       return send(res, 200, {team: publicTeam(id, t)});
     }
 
-// 15개 미션 완료 시 최종 승인 요청
+// 10개 미션 완료 시 최종 승인 요청
 if (u.pathname === '/api/final-request' && req.method === 'POST') {
   const x = team(req);
   if (!x) return send(res, 401, {error: '팀 인증 실패'});
 
   const [id, t] = x;
   if (!t.done || t.done.filter(Boolean).length !== COUNT) {
-    return send(res, 400, {error: '15개 미션을 먼저 완료해주세요.'});
+    return send(res, 400, {error: '10개 미션을 먼저 완료해주세요.'});
   }
 
   if (t.finalApproved) {
@@ -265,6 +266,7 @@ if (u.pathname === '/api/final-request' && req.method === 'POST') {
 
       const b = await read(req);
 
+if (u.pathname === '/api/admin/lightning-approve') { const t=db.teams[String(Number(b.team))]; if(!t || t.done.filter(Boolean).length<6) return send(res,400,{error:'일반 미션 6개 완료 필요'}); t.lightningDone=true; save(); return send(res,200,{ok:true}); }
 if (u.pathname === '/api/admin/final-approve') {
   const id = String(Number(b.team));
   const t = db.teams[id];
@@ -278,7 +280,7 @@ if (u.pathname === '/api/admin/final-approve') {
   }
 
   if (!Array.isArray(t.done) || t.done.filter(Boolean).length !== COUNT) {
-    return send(res, 400, {error:'15개 미션을 모두 완료해야 합니다.'});
+    return send(res, 400, {error:'10개 미션을 모두 완료해야 합니다.'});
   }
 
   t.finalApproved = true;
