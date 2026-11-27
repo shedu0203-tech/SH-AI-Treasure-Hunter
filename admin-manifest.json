@@ -1,0 +1,18 @@
+{
+  "id": "/admin.html",
+  "name": "AI 트레저헌터 관리자앱",
+  "short_name": "트레저헌터 관리자",
+  "start_url": "/admin.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#071b35",
+  "theme_color": "#071b35",
+  "icons": [
+    {
+      "src": "/file_000000008074821191bedefe1bb6bb49.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
