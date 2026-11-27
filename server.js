@@ -123,6 +123,11 @@ const summary = () => Array.from({length: MAX_TEAMS}, (_, i) => {
 http.createServer(async (req, res) => {
   try {
     const u = new URL(req.url, 'http://localhost');
+    if (u.pathname === '/student-icon-192.png' ||
+    u.pathname === '/student-icon-512.png') {
+  res.writeHead(200, {'Content-Type': 'image/png'});
+  return res.end(fs.readFileSync(path.join(root, u.pathname.slice(1))));
+    }
 if (u.pathname === '/file_000000008074821191bedefe1bb6bb49.png') {
   res.writeHead(200, {'Content-Type': 'image/png'});
   return res.end(fs.readFileSync(path.join(root, 'file_000000008074821191bedefe1bb6bb49.png')));
