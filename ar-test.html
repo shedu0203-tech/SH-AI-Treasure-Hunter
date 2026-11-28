@@ -21,6 +21,8 @@ h2 {
 
 #missionBox{ text-align:left; bottom: max(12px, env(safe-area-inset-bottom)) !important; padding:18px !important; border-radius:22px !important; max-height:48dvh; overflow:auto; font-family:system-ui,sans-serif; }
 #missionBox h3{font-size:12px;letter-spacing:2px;margin:6px 0;color:#ffdb83} #missionBox p{font-size:18px;font-weight:700;white-space:pre-wrap;margin:12px 0;color:#fff8e7} #missionBox button{width:100%;padding:14px;border:0;border-radius:12px;background:linear-gradient(135deg,#ffe5a0,#d69b38);color:#14243a;font-weight:900;font-size:16px} #missionBox input{box-sizing:border-box;width:100%!important;border-radius:12px;border:1px solid #d6b66c;background:#fff;color:#14243a;margin:8px 0;font-size:16px} #missionBox h2{font-size:21px;color:#ffe5a0} #discovery{display:none;position:fixed;top:18%;left:5%;width:90%;z-index:9998;pointer-events:none;color:#ffe49a;text-shadow:0 2px 12px #352000,0 0 24px #ffb62d;font-size:30px;font-weight:1000;letter-spacing:1px} #discovery.on{display:block;animation:discover 1.7s both} @keyframes discover{0%{opacity:0;transform:scale(.65)} 22%{opacity:1;transform:scale(1.08)} 75%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:translateY(-12px)}} #missionBox.open{animation:dialogIn .35s ease-out} @keyframes dialogIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+body.briefing{background:radial-gradient(ellipse at 50% 25%,#354b62,#101827 70%)!important;min-height:100dvh} body.briefing canvas,body.briefing #ARButton,body.briefing #intro{display:none!important} body.briefing #missionBox{max-height:90dvh;bottom:12px!important} #portrait{display:none} body.briefing #portrait{display:block;width:100%;height:32dvh;object-fit:contain;margin:auto;filter:drop-shadow(0 0 15px #eac36b55)}
 </style>
   <script type="importmap">
 {
@@ -37,6 +39,7 @@ h2 {
   <p>AR 시작 후 안전한 곳에 멈춰 바닥을 비춰주세요.</p><a href="/?return=1" style="color:white">메인으로 돌아가기</a>
 </div>
 <div id="discovery">✦ 비밀요원 발견! ✦<div style="font-size:13px">SECRET AGENT DISCOVERED</div></div>
+<img id="portrait" src="/file_0000000066c4820993aec93e7bd3b30c.png" alt="SH 비밀요원">
 <div id="missionBox" style="
   display:none;
   position:fixed;
@@ -99,6 +102,7 @@ renderer.xr.addEventListener('sessionstart', () => {
 });
 
 renderer.xr.addEventListener('sessionend', () => {
+  if(briefingTransition)return;
   document.getElementById('intro').style.display = 'block';
   document.getElementById('missionBox').style.display = 'none'; document.body.style.background='#101827';
 });
@@ -129,6 +133,7 @@ let requested = false;
 let characterSpawned = false;
 let activeCharacter = null;
 const controller = renderer.xr.getController(0);
+let briefingTransition = false;
 let approach = null, phase = 'search', idleAsset = null, walkAsset = null, activeMixer = null, generation = 0;
 const loader = new GLTFLoader();
 const ray = new THREE.Raycaster();
@@ -143,7 +148,7 @@ function speak(text, target, done){
   const el=document.getElementById(target); if(el)el.textContent=text;
   if(!window.speechSynthesis){done?.();return;}
   const synth=window.speechSynthesis; synth.cancel();
-  const u=new SpeechSynthesisUtterance(text);u.lang='ko-KR';u.rate=.91;u.pitch=.91;u.volume=1;
+  const u=new SpeechSynthesisUtterance(text);u.lang='ko-KR';u.rate=.96;u.pitch=1.0;u.volume=1;
   const voices=synth.getVoices().filter(v=>/^ko/i.test(v.lang));
   const voice=voices.find(v=>/natural|neural|premium/i.test(v.name))||voices.find(v=>/google/i.test(v.name))||voices[0];if(voice)u.voice=voice;
   let finished=false;const finish=()=>{if(finished)return;finished=true;done?.();};u.onend=finish;u.onerror=finish;synth.speak(u);setTimeout(finish,Math.max(4500,text.length*230));
@@ -164,7 +169,16 @@ function discover(){const el=document.getElementById('discovery');el.classList.r
 function typeLine(text,target){clearInterval(typingTimer);const el=document.getElementById(target);if(!el)return;el.textContent='';let i=0;const chars=Array.from(text);typingTimer=setInterval(()=>{if(i>=chars.length){clearInterval(typingTimer);return;}el.textContent+=chars[i++];if(i%4===0&&audio?.state==='running')tone(660,audio.currentTime,.045,.018,'triangle');},32);}
 const lines=['오호! 드디어 나를 찾아냈군! 꽤 대단한 탐험대인데?','쉿! 보물의 비밀을 풀 특별한 임무가 있어. 팀원들과 함께 도전해 볼래?'];
 function dialogue(){const btn=document.getElementById('startMission');btn.textContent=dialogueStep===0?'물론이지! 계속 이야기해 줘 ▶':'좋아! 비밀 임무를 맡겨줘! ▶';typeLine(lines[dialogueStep],'npcDialogue');speak(lines[dialogueStep],'');}
-function showBrief(){phase='brief';if(idleAsset)setModel(idleAsset,'idle');faceViewer();const box=document.getElementById('missionBox');box.style.display='block';box.classList.add('open');dialogueStep=0;dialogue();}
+async function showBrief(){
+ if(briefingTransition)return;
+ briefingTransition=true;phase='brief';approach=null;
+ if(activeCharacter)activeCharacter.visible=false;
+ sparks.visible=false;
+ try{const session=renderer.xr.getSession();if(session)await session.end();}catch(e){briefingTransition=false;alert('AR 종료에 실패했습니다. 다시 시도해주세요.');return;}
+ document.body.classList.add('briefing');document.body.style.background='#101827';
+ document.getElementById('intro').style.display='none';
+ const box=document.getElementById('missionBox');box.style.display='block';box.classList.add('open');dialogueStep=0;dialogue();
+}
 
 
 
@@ -180,7 +194,7 @@ controller.addEventListener('select',()=>{
  if(!ray.intersectObject(activeCharacter,true).length)return;
  try{audio ||= new (window.AudioContext||window.webkitAudioContext)();audio.resume();}catch(e){}
  discover();phase='approach';const from=activeCharacter.position.clone(),to=cameraPos.clone();to.y=from.y;
- const distance=from.distanceTo(to);if(distance<.48){showBrief();return;}to.lerp(from,.48/distance);
+ const distance=from.distanceTo(to);if(distance<.12){showBrief();return;}const direction=to.clone().sub(from).normalize();to.addScaledVector(direction,.35);
  if(walkAsset)setModel(walkAsset,'walk');faceViewer();approach={from,to,elapsed:0,step:-1};
 });
 scene.add(controller);
@@ -190,7 +204,7 @@ renderer.setAnimationLoop((time, frame) => {
   const delta = clock.getDelta();
 mixers.forEach(mixer => mixer.update(delta));
  if(frame){const xrCam=renderer.xr.getCamera();xrCam.getWorldPosition(cameraPos);}
- if(approach&&activeCharacter){approach.elapsed+=Math.min(delta,.1);const t=Math.min(1,approach.elapsed/2);activeCharacter.position.lerpVectors(approach.from,approach.to,t*t*(3-2*t));faceViewer();const step=Math.floor(approach.elapsed/.42);if(step!==approach.step){approach.step=step;footstep();}if(t>=1){approach=null;showBrief();}}
+ if(approach&&activeCharacter){approach.elapsed+=Math.min(delta,.1);const t=Math.min(1,approach.elapsed/2);activeCharacter.position.lerpVectors(approach.from,approach.to,t);faceViewer();const step=Math.floor(approach.elapsed/.42);if(step!==approach.step){approach.step=step;footstep();}if(t>=1){approach=null;showBrief();}}
  if(sparkleTime>0){sparkleTime-=delta;const t=1-Math.max(0,sparkleTime)/1.3;sparks.children.forEach((m,i)=>{const a=i*2.399+t*2;m.position.set(Math.cos(a)*(.15+t*.45),.05+t*.7+(i%5)*.05,Math.sin(a)*(.15+t*.45));m.material.opacity=1-t;});if(sparkleTime<=0)sparks.visible=false;}
 
   if (frame) {
@@ -239,7 +253,7 @@ ring.visible = false;
   const startButton = document.getElementById('startMission');
 const originalBox = document.getElementById('missionBox');
 const originalNodes=Array.from(originalBox.childNodes);
-renderer.xr.addEventListener('sessionend',()=>{clearInterval(typingTimer);originalBox.replaceChildren(...originalNodes);startButton.disabled=false;originalBox.classList.remove('open');document.getElementById('discovery').classList.remove('on');});
+renderer.xr.addEventListener('sessionend',()=>{if(briefingTransition)return;clearInterval(typingTimer);originalBox.replaceChildren(...originalNodes);startButton.disabled=false;originalBox.classList.remove('open');document.getElementById('discovery').classList.remove('on');});
 
 document.getElementById('missionBox').addEventListener('beforexrselect',e=>e.preventDefault());
 startButton.addEventListener('beforexrselect', (event) => {
