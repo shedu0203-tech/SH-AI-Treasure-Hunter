@@ -76,7 +76,7 @@ th{background:#edf3f9}
 </section>
 
 <section>
-<h2>⏳ 지도자 승인 대기</h2>
+<h2>⚡ 번개 미션 승인 대기</h2>
 <div id="pending"></div>
 </section>
 
@@ -87,13 +87,13 @@ th{background:#edf3f9}
 <table>
 <thead>
 <tr>
-<th>팀</th>
+<th>순위</th><th>팀</th>
 <th>팀 이름</th>
 <th>완료</th>
 <th>점수</th>
 <th>진행률</th>
-<th>승인 대기</th>
-<th>최종 승인</th><th>관리</th>
+<th>번개 미션</th>
+<th>최종 상태</th><th>관리</th>
 </tr>
 </thead>
 <tbody id="teamRows"></tbody>
@@ -235,58 +235,19 @@ function render(){
  const completed=teams.filter(t=>
   t.name&&t.done&&t.done.filter(Boolean).length===missions.length
  ).length;
- const waiting=teams.reduce((n,t)=>n+(t.pending||[]).length,0);
-
- $('summary').textContent=
-  '등록 '+registered+'팀 / 40팀 · 전체 완료 '+
-  completed+'팀 · 승인 대기 '+waiting+'건';
-
+ const total=missions.length||10;
+ const eligible=teams.filter(t=>t.name&&(t.done||[]).filter(Boolean).length===total).sort((a,b)=>Number(b.score||0)-Number(a.score||0));
+ const rank=t=>eligible.some(x=>x.id===t.id)?1+eligible.filter(x=>Number(x.score||0)>Number(t.score||0)).length:'—';
+ const requests=teams.filter(t=>t.name&&(t.done||[]).filter(Boolean).length>=6&&!t.lightningDone);
+ $('summary').textContent=`등록 ${registered}팀 / 40팀 · 전체 완료 ${completed}팀 · 번개 승인 대기 ${requests.length}팀`;
  $('eventStatus').textContent=data.open?'🟢 행사 진행 중':'🔴 행사 중지';
  $('eventOpen').checked=Boolean(data.open);
-
-$('testMode').checked = Boolean(data.testMode);
-
- const requests=[];
- teams.forEach(t=>{
-  (t.pending||[]).forEach(number=>{
-   const m=missions[number-1]||{};
-   requests.push({
-    team:t.id,
-    name:t.name,
-    mission:number,
-    title:m.title||'미션'
-   });
-  });
- });
-
- $('pending').innerHTML=requests.length
-  ?requests.map(r=>`
-   <div class="pending">
-    <strong>${esc(r.team)}팀 · ${esc(r.name)}</strong>
-    <p>${r.mission}번 미션: ${esc(r.title)}</p>
-    <button class="green" onclick="approve(${Number(r.team)},${Number(r.mission)})">승인</button>
-   </div>`).join('')
-  :'<p class="small">현재 승인 대기 중인 미션이 없습니다.</p>';
-
- $('teamRows').innerHTML=teams.map(t=>{
-  const count=(t.done||[]).filter(Boolean).length;
-  const total=missions.length||10;
-  const rate=Math.round(count/total*100);
-  return `<tr>
-   <td>${esc(t.id)}</td>
-   <td>${esc(t.name||'미등록')}</td>
-   <td>${count}/${total}</td>
-   <td>${count*100}</td>
-   <td>
-    <div class="progress"><div class="bar" style="width:${rate}%"></div></div>
-    ${rate}%
-   </td>
-   <td>${(t.pending||[]).length}건 ${count>=6?(t.lightningDone?'⚡ 완료':`<button onclick="action('lightning-approve',{team:${Number(t.id)}},'번개 미션 승인 완료')">⚡ 승인</button>`):''}</td>
-   
-<td>${count===total ? (t.finalApproved ? '🏆 최종 승인 완료' : t.finalRequested ? `<button class="green" onclick="approveFinal(${Number(t.id)})">🏆 최종 승인</button>` : '최종 승인 요청 대기') : '미션 진행 중'}</td>
-
-   <td><button class="danger" ${!t.name?'disabled':''} onclick="resetTeam(${Number(t.id)})">초기화</button></td>
-   </tr>`;
+ $('testMode').checked=Boolean(data.testMode);
+ $('pending').innerHTML=requests.length?requests.map(t=>`<div class="pending"><strong>${esc(t.id)}팀 · ${esc(t.name)}</strong><button class="green" onclick="approveLightning(${Number(t.id)})">⚡ 승인</button></div>`).join(''):'<p class="small">번개 미션 승인 대기 팀이 없습니다.</p>';
+ $('teamRows').innerHTML=[...eligible,...teams.filter(t=>!eligible.includes(t)).sort((a,b)=>Number(!!b.name)-Number(!!a.name)||Number(b.score||0)-Number(a.score||0))].map(t=>{
+ const count=(t.done||[]).filter(Boolean).length;
+ const rate=Math.round(count/total*100);
+ return `<tr><td>${rank(t)}</td><td>${esc(t.id)}</td><td>${esc(t.name||'미등록')}</td><td>💎 ${count}/${total}</td><td>${Number(t.score||0)}점</td><td><div class="progress"><div class="bar" style="width:${rate}%"></div></div>${rate}%</td><td>${t.lightningDone?'⚡ 완료':count>=6?'승인 대기':'—'}</td><td>${count===total?'🏆 자동 완료':t.name?'진행 중':'—'}</td><td><button class="danger" ${!t.name?'disabled':''} onclick="resetTeam(${Number(t.id)})">초기화</button></td></tr>`;
  }).join('');
 
  $('places').innerHTML=missions.map((m,i)=>`
@@ -324,18 +285,9 @@ async function action(route,body,success){
  }
 }
 
-async function approve(team,mission){
- if(!confirm(team+'팀의 '+mission+'번 미션을 승인하시겠습니까?'))return;
- await action('approve',{team,mission},'미션 승인이 완료되었습니다.');
-}
-
-async function approveFinal(team){
-  if(!confirm(team+'팀의 10개 미션을 최종 승인하시겠습니까?')) return;
-  await action(
-    'final-approve',
-    {team},
-    '최종 승인이 완료되었습니다!'
-  );
+async function approveLightning(team){
+ if(!confirm(team+'팀의 번개 미션을 승인하시겠습니까?'))return;
+ await action('lightning-approve',{team},'번개 미션 승인 완료');
 }
 
 async function resetTeam(team){
@@ -481,12 +433,12 @@ async function saveGPS(){
 function exportCSV(){
  if(!data)return;
  const total=data.missions.length||10;
- const rows=[['팀 번호','팀 이름','완료 미션','총 미션','점수','승인 대기']];
+ const rows=[['팀 번호','팀 이름','완료 미션','총 미션','점수','번개 미션','최종 순위']];
  data.teams.forEach(t=>{
   const count=(t.done||[]).filter(Boolean).length;
   rows.push([
-   t.id,t.name||'',count,total,count*100,
-   (t.pending||[]).join('/')
+   t.id,t.name||'',count,total,Number(t.score||0),
+   t.lightningDone?'완료':'미완료', count===total&&t.name?1+data.teams.filter(x=>x.name&&(x.done||[]).filter(Boolean).length===total&&Number(x.score||0)>Number(t.score||0)).length:''
   ]);
  });
  const csv='\uFEFF'+rows.map(r=>r.map(v=>
@@ -509,7 +461,7 @@ if(pin){
 }
 
 setInterval(() => {
-  if (pin && data && !document.activeElement?.closest('#gpsFields')) {
+  if (pin && data && !document.activeElement?.closest('#gpsFields, #places, #eventOpen, #testMode, #confirmation')) {
     load().catch(() => {});
   }
 }, 10000);
