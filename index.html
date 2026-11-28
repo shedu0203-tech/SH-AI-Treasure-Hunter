@@ -1259,7 +1259,7 @@ function render(){
  const missions=Array.isArray(config.missions)?config.missions:[];
 
  $('teamTitle').textContent='🏴 '+state.name;
- $('score').textContent=(count*100)+'점';
+ $('score').textContent=(state.score??count*100)+'점';
  $('progressText').textContent=count+' / '+TOTAL+'개 미션 완료';
  $('bar').style.width=(count/TOTAL*100)+'%';
 
@@ -1268,32 +1268,12 @@ function render(){
   (i+1)+'</div>'
  ).join('');
   
-if (typeof window.shPreviousCount === 'number' &&
-    count > window.shPreviousCount) {
-  notify('🎉 미션 성공! 💎 보물 조각을 획득했습니다!');
-}
-const newTreasure = Array.isArray(window.shPreviousDone) && done.some((v,i)=>v && !window.shPreviousDone[i]);
-  window.shPreviousCount = count;
-const newlyCompleted = done.map((v,i)=>v && !(window.shPreviousDone || [])[i]);
-window.shPreviousDone = [...done];  
-if (newTreasure) {
-shFx('success');
+const prior=window.shPreviousDone || (()=>{try{return JSON.parse(sessionStorage.getItem('shDone:'+session)||'null')}catch(e){return null}})();
+const newlyCompleted=prior?done.map((v,i)=>v&&!prior[i]):[];
+window.shPreviousDone=[...done];
+sessionStorage.setItem('shDone:'+session,JSON.stringify(done));
+if(newlyCompleted.some(Boolean)) setTimeout(()=>shGemReward(newlyCompleted.findIndex(Boolean),count===TOTAL),0);
 
-document.querySelectorAll('.piece.on').forEach((piece, index) => {
-if (!newlyCompleted[index]) return;
-
-    piece.animate(
-      [
-        { transform: 'scale(1)' },
-        { transform: 'scale(1.25)' },
-        { transform: 'scale(1)' }
-      ],
-      { duration: 700, easing: 'ease-out' }
-    );
-  });
-}
-
- 
 $('treasure').classList.toggle(
   'hidden',
   count !== TOTAL || !state.finalApproved
@@ -2215,7 +2195,7 @@ function air(at,d,v,f,end,attack=.02){const n=c.createBufferSource();n.buffer=sh
 function metal(at,v){air(at,.085,v,3500,800,.003);[620,1117,1780,2830].forEach((f,i)=>tone(f,f*.97,at,.12+i*.025,v*.22));}
 function impact(at,v){air(at,.38,v*.7,850,100,.006);tone(105,37,at,.48,v);tone(54,32,at,.55,v*.5);}
 function shimmer(at,v){[523,659,784,1047,1319].forEach((f,i)=>{tone(f,f,at+i*.065,.6,v*.5);tone(f*2.01,f*2,at+i*.065,.24,v*.13);});}
-switch(kind){case 'click':air(0,.045,.65,5200,2100,.001);air(.032,.055,.48,3000,900,.001);tone(1350,700,0,.055,.18,'triangle',.002);tone(230,100,.032,.09,.24,'sine',.002);break;case 'swipe':air(0,.24,.42,650,3900,.045);air(.09,.19,.23,2900,450,.012);metal(.16,.12);break;case 'map':air(0,.5,.24,300,2200,.12);tone(190,95,.18,.5,.16);metal(.3,.14);break;case 'select':air(0,.28,.26,450,4400,.025);metal(.075,.24);tone(392,587,.065,.24,.14,'triangle',.012);tone(784,1047,.12,.38,.11,'sine',.012);tone(1568,1568,.19,.32,.045);break;case 'radar':air(0,.42,.085,900,4300,.045);tone(180,420,0,.32,.10,'sine',.025);tone(740,1480,.035,.22,.105,'sine',.012);tone(1480,2200,.075,.16,.045,'sine',.012);tone(1110,740,.24,.35,.045,'sine',.018);tone(740,490,.40,.28,.022,'sine',.018);break;case 'alert':for(let i=0;i<3;i++){impact(i*.48,.32);tone(165,130,i*.48,.4,.16,'triangle',.035);air(i*.48,.36,.18,900,180,.04);}break;case 'success':shimmer(0,.24);impact(.18,.12);break;default:air(0,.8,.32,180,2600,.25);impact(.52,.32);[130.8,196,261.6,329.6].forEach(f=>tone(f,f,.53,.95,.09,'triangle',.06));shimmer(.7,.13);}
+switch(kind){case 'click':air(0,.045,.65,5200,2100,.001);air(.032,.055,.48,3000,900,.001);tone(1350,700,0,.055,.18,'triangle',.002);tone(230,100,.032,.09,.24,'sine',.002);break;case 'swipe':air(0,.24,.42,650,3900,.045);air(.09,.19,.23,2900,450,.012);metal(.16,.12);break;case 'map':air(0,.5,.24,300,2200,.12);tone(190,95,.18,.5,.16);metal(.3,.14);break;case 'select':[880,1174.66,1567.98].forEach((f,i)=>{tone(f,f,i*.085,.48,.13,'sine',.006);tone(f*2,f*2,i*.085,.22,.025);});break;case 'radar':air(0,.42,.085,900,4300,.045);tone(180,420,0,.32,.10,'sine',.025);tone(740,1480,.035,.22,.105,'sine',.012);tone(1480,2200,.075,.16,.045,'sine',.012);tone(1110,740,.24,.35,.045,'sine',.018);tone(740,490,.40,.28,.022,'sine',.018);break;case 'alert':for(let i=0;i<3;i++){impact(i*.48,.32);tone(165,130,i*.48,.4,.16,'triangle',.035);air(i*.48,.36,.18,900,180,.04);}break;case 'success':shimmer(0,.24);impact(.18,.12);break;default:air(0,.8,.32,180,2600,.25);impact(.52,.32);[130.8,196,261.6,329.6].forEach(f=>tone(f,f,.53,.95,.09,'triangle',.06));shimmer(.7,.13);}
 }catch(e){}}
 
 
@@ -2249,5 +2229,25 @@ function shLightning(){if($('lightningNotice')||$('shRulesPanel')||shRegistering
 #game #missions article.mission[data-id]:nth-child(9){--cardGold:#ffbce7;--cardColor:#752a62;}
 #game #missions article.mission[data-id]:nth-child(10){--cardGold:#e5e9ff;--cardColor:#4b506d;}
 </style>
+<style>
+#game #missions article.mission.done[data-id]{filter:grayscale(1);opacity:.78;animation:none!important;box-shadow:none!important}
+#game #missions article.mission.done .mission-status{color:white!important;background:#333!important;border:1px solid #aaa;border-radius:8px;padding:8px}
+#shReward{position:fixed;inset:0;z-index:30000;background:radial-gradient(ellipse,#23334e,#060a15ee);display:grid;place-content:center;text-align:center;color:#ffe4a0;pointer-events:none;transition:background .4s}
+#shRewardGem{font-size:100px;filter:drop-shadow(0 0 22px #ffe37d);animation:shGemGlow 1.4s ease-in-out infinite alternate;position:relative;z-index:2}
+#shReward h2{font-size:26px;letter-spacing:3px}#shReward p{font-size:22px;font-weight:bold}
+@keyframes shGemGlow{from{transform:scale(.85) rotate(-8deg);filter:drop-shadow(0 0 12px gold)}to{transform:scale(1.12) rotate(8deg);filter:drop-shadow(0 0 38px #fff3a5)}}
+@media(prefers-reduced-motion:reduce){#shRewardGem{animation:none}}
+</style>
+<script>
+function shGemReward(i,last){
+ if(document.getElementById('shReward'))return;
+ const el=document.createElement('div');el.id='shReward';el.innerHTML='<h2>MISSION CLEAR</h2><div id="shRewardGem">💎</div><p id="shRewardScore"></p>';document.body.append(el);shFx('success');
+ const gem=el.querySelector('#shRewardGem');const score=el.querySelector('#shRewardScore');
+ setTimeout(()=>{score.textContent='보석 획득 · 총 '+(state.score??state.done.filter(Boolean).length*100)+'점'},2000);
+ setTimeout(()=>{el.style.background='transparent';el.querySelector('h2').style.visibility='hidden';score.style.visibility='hidden';$('treasure').classList.add('hidden');$('exploreMapCard').classList.add('hidden');$('missionPopup').hidden=true;const target=$('pieces').children[i];if(!target)return;target.scrollIntoView({block:'nearest'});const a=gem.getBoundingClientRect(),b=target.getBoundingClientRect();gem.style.animation='none';gem.animate([{transform:'translate(0,0) scale(1)'},{transform:`translate(${b.x+b.width/2-a.x-a.width/2}px,${b.y+b.height/2-a.y-a.height/2}px) scale(.2)`,opacity:.2}],{duration:1000,delay:500,fill:'forwards',easing:'ease-in-out'});},3000);
+ setTimeout(()=>{const target=$('pieces').children[i];target?.animate([{filter:'brightness(1)'},{filter:'brightness(2.5)'},{filter:'brightness(1)'}],{duration:500});shFx('success');if(!last)el.remove();else{el.style.background='radial-gradient(ellipse,#493519,#080b15)';el.innerHTML='<h2>ALL GEMS COLLECTED</h2><div id="shRewardGem">✨💎✨</div><p>모든 보석 획득!</p>'; }},4500);
+ if(last){setTimeout(()=>{el.querySelector('#shRewardGem').textContent='🎁'},6000);setTimeout(()=>{el.querySelector('#shRewardGem').textContent='✨🏆✨';el.querySelector('h2').textContent='TREASURE COMPLETE';el.querySelector('p').textContent='총 '+(state.score??1000)+'점'},8500);setTimeout(()=>{el.remove();render()},10000);}
+}
+</script>
 </body>
 </html>
